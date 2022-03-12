@@ -1,18 +1,18 @@
-package com.wilmol.media;
+package com.wilmol.media.tvshows;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * FileRenamerIntegrationTest.
+ * TvShowRenamerTest.
  *
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-class FileRenamerIntegrationTest {
+class TvShowRenamerTest {
 
   @Test
   void name() {
-    assertThat(new FileRenamer()).isNotNull();
+    assertThat(new TvShowRenamer()).isNotNull();
   }
 }

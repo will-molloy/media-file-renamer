@@ -1,4 +1,4 @@
-package com.wilmol.media;
+package com.wilmol.media.tvshows;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
@@ -10,11 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * File renamer.
+ * Starting point for renaming TV shows.
  *
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-class FileRenamer {
+class TvShowRenamer {
 
   private static final Logger log = LogManager.getLogger();
 
@@ -65,7 +65,7 @@ class FileRenamer {
 
   public static void main(String[] args) {
     try {
-      FileRenamer app = new FileRenamer();
+      TvShowRenamer app = new TvShowRenamer();
       app.run(Path.of(""), true);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
