@@ -35,11 +35,10 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
   /**
    * TV show episode.
    *
-   * @param seasonNum season number
    * @param episodeNum episode number
    * @param file path to episode file (video)
    */
-  public record Episode(int seasonNum, int episodeNum, Path file) {}
+  public record Episode(int episodeNum, Path file) {}
 
   private static final Logger log = LogManager.getLogger();
 
@@ -51,9 +50,8 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
    *
    * @param showDir path to show directory
    * @return {@link TvShow}
-   * @throws IOException if error reading files
    */
-  public static TvShow parse(Path showDir) throws IOException {
+  public static TvShow parseTvShow(Path showDir) {
     checkArgument(Files.isDirectory(showDir), "%s is not a directory", showDir);
     String showDirName = showDir.getFileName().toString();
     Matcher showDirMatcher = SHOW_DIR_PATTERN.matcher(showDirName);
@@ -62,55 +60,62 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
 
     String showName = showDirMatcher.group(1);
     int showYear = Integer.parseInt(showDirMatcher.group(2));
-
-    List<Path> seasonDirs = Files.list(showDir).toList();
-    for (Path seasonDir : seasonDirs) {
-      checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
-      String seasonDirName = seasonDir.getFileName().toString();
-      Matcher seasonDirMatcher = SEASON_DIR_PATTERN.matcher(seasonDirName);
-      checkArgument(
-          seasonDirMatcher.matches(),
-          "Directory %s doesnt match %s",
-          seasonDirName,
-          seasonDirMatcher);
-    }
-
-    // assumed 'seasonDirs' are in sorted order
-    // They'll need to same it like 'Season 09' otherwise 'Season 10' comes before 'Season 9'
-    // TODO more complex logic to handle that??
-    List<Season> seasons =
-        IntStream.rangeClosed(1, seasonDirs.size())
-            .mapToObj(
-                seasonNum -> {
-                  try {
-                    return parse(seasonNum, seasonDirs.get(seasonNum - 1));
-                  } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                  }
-                })
-            .toList();
+    List<Season> seasons = parseSeasons(showDir);
 
     TvShow tvShow = new TvShow(showName, showYear, seasons);
     log.info("Parsed TV show: {}", tvShow);
     return tvShow;
   }
 
-  private static Season parse(int seasonNum, Path seasonDir) throws IOException {
-    List<Path> episodeFiles = Files.list(seasonDir).toList();
-    for (Path episodeFile : episodeFiles) {
-      checkArgument(Files.isRegularFile(episodeFile), "%s is not a regular file", episodeFile);
+  private static List<Season> parseSeasons(Path showDir) {
+    try {
+      List<Path> seasonDirs = Files.list(showDir).toList();
+      for (Path seasonDir : seasonDirs) {
+        checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
+        String seasonDirName = seasonDir.getFileName().toString();
+        Matcher seasonDirMatcher = SEASON_DIR_PATTERN.matcher(seasonDirName);
+        checkArgument(
+            seasonDirMatcher.matches(),
+            "Directory %s doesnt match %s",
+            seasonDirName,
+            seasonDirMatcher);
+      }
+
+      // assumed 'seasonDirs' are in sorted order
+      // They'll need to same it like 'Season 09' otherwise 'Season 10' comes before 'Season 9'
+      // TODO more complex logic to handle that??
+      return IntStream.rangeClosed(1, seasonDirs.size())
+          .mapToObj(
+              seasonNum -> {
+                List<Episode> episodes = parseEpisodes(seasonDirs.get(seasonNum - 1));
+                return new Season(seasonNum, seasonDirs.get(seasonNum - 1), episodes);
+              })
+          .toList();
+    } catch (IOException e) {
+      String msg = "Error parsing seasons for show: %s".formatted(showDir);
+      log.error(msg, e);
+      throw new UncheckedIOException(msg, e);
     }
+  }
 
-    // similarly, assumed 'episodeFiles' are in sorted order
-    // They'll need to same it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
-    // TODO more complex logic to handle that??
-    //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.
-    List<Episode> episodes =
-        IntStream.rangeClosed(1, episodeFiles.size())
-            .mapToObj(
-                episodeNum -> new Episode(seasonNum, episodeNum, episodeFiles.get(episodeNum - 1)))
-            .toList();
+  private static List<Episode> parseEpisodes(Path seasonDir) {
+    try {
+      List<Path> episodeFiles = Files.list(seasonDir).toList();
+      for (Path episodeFile : episodeFiles) {
+        checkArgument(Files.isRegularFile(episodeFile), "%s is not a regular file", episodeFile);
+      }
 
-    return new Season(seasonNum, seasonDir, episodes);
+      // similarly, assumed 'episodeFiles' are in sorted order
+      // They'll need to same it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
+      // TODO more complex logic to handle that??
+      //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.
+      return IntStream.rangeClosed(1, episodeFiles.size())
+          .mapToObj(episodeNum -> new Episode(episodeNum, episodeFiles.get(episodeNum - 1)))
+          .toList();
+    } catch (IOException e) {
+      String msg = "Error parsing episodes for season: %s".formatted(seasonDir);
+      log.error(msg, e);
+      throw new UncheckedIOException(msg, e);
+    }
   }
 }

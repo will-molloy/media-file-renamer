@@ -29,7 +29,7 @@ public class TheMovieDatabaseTvShowRepository implements TvShowRepository {
 
   @Override
   public String getEpisodeName(String showName, int firstAirDateYear, int season, int episode) {
-    log.info("getEpisodeName({}, {}, s{}, e{})", showName, firstAirDateYear, season, episode);
+    log.info("getEpisodeName(showName={}, firstAirDateYear={}, season={}, episode={})", showName, firstAirDateYear, season, episode);
     int showId = getId(showName, firstAirDateYear);
 
     // https://developers.themoviedb.org/3/tv-episodes/get-tv-episode-details

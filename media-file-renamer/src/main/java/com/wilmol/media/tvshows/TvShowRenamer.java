@@ -1,11 +1,16 @@
 package com.wilmol.media.tvshows;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.wilmol.media.tvshows.repository.TvShowRepository;
+import com.wilmol.media.tvshows.repository.themoviedb.TheMovieDatabaseTvShowRepository;
+import com.wilmol.media.util.HttpHelper;
+import com.wilmol.media.util.JsonHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,45 +23,65 @@ class TvShowRenamer {
 
   private static final Logger log = LogManager.getLogger();
 
+  private final TvShowRepository tvShowRepository;
+
+  TvShowRenamer(TvShowRepository tvShowRepository) {
+    this.tvShowRepository = checkNotNull(tvShowRepository);
+  }
+
   void run(Path showDir, boolean dryRun) throws IOException {
     Stopwatch stopwatch = Stopwatch.createStarted();
     log.info("run(showDir={}, dryRun={}) started", showDir, dryRun);
 
-    TvShow tvShow = TvShow.parse(showDir);
+    TvShow tvShow = TvShow.parseTvShow(showDir);
+
+    for (TvShow.Season season : tvShow.seasons()) {
+      for (TvShow.Episode episode : season.episodes()) {
+        String episodeName =
+            tvShowRepository.getEpisodeName(
+                tvShow.showName(), tvShow.showYear(), season.seasonNum(), episode.episodeNum());
+
+        String fileName = episode.file().getFileName().toString();
+        String videoFileSuffix = fileName.substring(fileName.lastIndexOf("."));
+
+        String newFileName =
+            "%s S%sE%s %s%s"
+                .formatted(
+                    tvShow.showName(),
+                    padLength2(season.seasonNum()),
+                    padLength2(episode.episodeNum()),
+                    episodeName,
+                    videoFileSuffix);
+        Path newPath = episode.file().resolveSibling(newFileName);
+
+        log.info(
+            "Renaming {}/{}: {} -> {}",
+            padLength2(episode.episodeNum()),
+            padLength2(season.episodes().size()),
+            episode.file(),
+            newPath);
+        if (!dryRun) {
+          Files.move(episode.file(), newPath);
+        }
+      }
+    }
 
     log.info("run finished - elapsed: {}", stopwatch.elapsed());
+
+    if (dryRun) {
+      log.info("Dry run. Please check the above output");
+    }
   }
 
-  private void nameEpisodes(Path seasonDirectory, int season, boolean dryRun) throws IOException {
-    // may need to rename the files manually first
-    // E.g. "Episode 10" comes before "Episode 9"
-    // So name it like "Episode 09"
-    List<Path> episodes = Files.list(seasonDirectory).sorted().toList();
-
-    log.info("Detected {} episode(s)", episodes.size());
-
-    int i = 1;
-    for (Path episode : episodes) {
-      String s = Strings.padStart(String.valueOf(season), 2, '0');
-      String e = Strings.padStart(String.valueOf(i), 2, '0');
-
-      String name = episode.getFileName().toString();
-      String suffix = name.substring(name.lastIndexOf("."));
-
-      String newName = "Episode S%sE%s%s".formatted(s, e, suffix);
-      Path newPath = episode.resolveSibling(newName);
-
-      log.info("Renaming ({}/{}): {} -> {}", i, episodes.size(), episode, newPath);
-      if (!dryRun) {
-        Files.move(episode, newPath);
-      }
-      i++;
-    }
+  private String padLength2(int i) {
+    return Strings.padStart(String.valueOf(i), 2, '0');
   }
 
   public static void main(String[] args) {
     try {
-      TvShowRenamer app = new TvShowRenamer();
+      TheMovieDatabaseTvShowRepository tvShowRepository =
+          new TheMovieDatabaseTvShowRepository("", new HttpHelper(new JsonHelper()));
+      TvShowRenamer app = new TvShowRenamer(tvShowRepository);
       app.run(Path.of("J:\\Shows\\Breaking Bad (2008)"), true);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
