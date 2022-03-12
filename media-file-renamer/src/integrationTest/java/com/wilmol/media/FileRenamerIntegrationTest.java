@@ -1,18 +1,18 @@
-package com.wilmol;
+package com.wilmol.media;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * Example integration test.
+ * FileRenamerIntegrationTest.
  *
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-class HelloWorldIntegrationTest {
+class FileRenamerIntegrationTest {
 
   @Test
-  void test() {
-    assertThat(new HelloWorld().helloWorld()).isEqualTo("Hello world!");
+  void name() {
+    assertThat(new FileRenamer()).isNotNull();
   }
 }
