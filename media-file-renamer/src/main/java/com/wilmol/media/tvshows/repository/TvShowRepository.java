@@ -12,9 +12,9 @@ public interface TvShowRepository {
    *
    * @param showName show name
    * @param firstAirDateYear show year
-   * @param episode episode number
    * @param season season number
-   * @return TV show episode name
+   * @param episode episode number
+   * @return episode name
    */
-  String getEpisodeName(String showName, int firstAirDateYear, int episode, int season);
+  String getEpisodeName(String showName, int firstAirDateYear, int season, int episode);
 }
