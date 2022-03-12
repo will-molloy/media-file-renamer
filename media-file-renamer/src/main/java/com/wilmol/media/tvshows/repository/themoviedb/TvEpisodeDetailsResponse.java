@@ -8,4 +8,4 @@ package com.wilmol.media.tvshows.repository.themoviedb;
  *     href=https://developers.themoviedb.org/3/tv-episodes/get-tv-episode-details>https://developers.themoviedb.org/3/tv-episodes/get-tv-episode-details</a>
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-record TvEpisodeDetails(String name) {}
+record TvEpisodeDetailsResponse(String name) {}

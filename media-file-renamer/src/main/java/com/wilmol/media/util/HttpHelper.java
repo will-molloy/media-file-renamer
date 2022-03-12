@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.Range;
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
@@ -16,19 +17,18 @@ import org.apache.logging.log4j.Logger;
  *
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-public class HttpClient {
+public class HttpHelper {
 
   private static final Logger log = LogManager.getLogger();
 
   private static final Duration TIMEOUT = Duration.ofSeconds(30);
 
-  private final java.net.http.HttpClient httpClient =
-      java.net.http.HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
+  private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
 
-  private final JsonDeserialiser jsonDeserialiser;
+  private final JsonHelper jsonHelper;
 
-  public HttpClient(JsonDeserialiser jsonDeserialiser) {
-    this.jsonDeserialiser = checkNotNull(jsonDeserialiser);
+  public HttpHelper(JsonHelper jsonHelper) {
+    this.jsonHelper = checkNotNull(jsonHelper);
   }
 
   /**
@@ -48,7 +48,7 @@ public class HttpClient {
 
       if (Range.closedOpen(200, 300).contains(response.statusCode())) {
         String body = response.body();
-        return jsonDeserialiser.deserialise(body, type);
+        return jsonHelper.deserialise(body, type);
       }
 
       String msg =
@@ -59,7 +59,7 @@ public class HttpClient {
     } catch (IOException | InterruptedException e) {
       String msg = "Error sending GET %s".formatted(uri);
       log.error(msg, e);
-      throw new RuntimeException(msg);
+      throw new RuntimeException(msg, e);
     }
   }
 }

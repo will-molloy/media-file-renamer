@@ -18,20 +18,11 @@ class TvShowRenamer {
 
   private static final Logger log = LogManager.getLogger();
 
-  void run(Path directory, boolean dryRun) throws IOException {
+  void run(Path showDir, boolean dryRun) throws IOException {
     Stopwatch stopwatch = Stopwatch.createStarted();
-    log.info("run(directory={}, dryRun={}) started", directory, dryRun);
+    log.info("run(showDir={}, dryRun={}) started", showDir, dryRun);
 
-    List<Path> seasons = Files.list(directory).toList();
-
-    log.info("Detected {} season(s)", seasons.size());
-
-    int i = 1;
-    for (Path seasonDir : seasons) {
-      log.info("Processing Season {}", i);
-      nameEpisodes(seasonDir, i, dryRun);
-      i++;
-    }
+    TvShow tvShow = TvShow.parse(showDir);
 
     log.info("run finished - elapsed: {}", stopwatch.elapsed());
   }
@@ -66,7 +57,7 @@ class TvShowRenamer {
   public static void main(String[] args) {
     try {
       TvShowRenamer app = new TvShowRenamer();
-      app.run(Path.of(""), true);
+      app.run(Path.of("J:\\Shows\\Breaking Bad (2008)"), true);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
     }

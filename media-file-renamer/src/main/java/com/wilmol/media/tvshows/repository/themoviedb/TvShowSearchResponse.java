@@ -10,7 +10,7 @@ import java.util.List;
  *     href=https://developers.themoviedb.org/3/search/search-tv-shows>https://developers.themoviedb.org/3/search/search-tv-shows</a>
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-record TvShowSearch(List<Result> results) {
+record TvShowSearchResponse(List<Result> results) {
 
   /**
    * Search result.

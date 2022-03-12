@@ -4,7 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Verify.verify;
 
 import com.wilmol.media.tvshows.repository.TvShowRepository;
-import com.wilmol.media.util.HttpClient;
+import com.wilmol.media.util.HttpHelper;
 import java.net.URLEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,11 +20,11 @@ public class TheMovieDatabaseTvShowRepository implements TvShowRepository {
   private static final Logger log = LogManager.getLogger();
 
   private final String apiKey;
-  private final HttpClient httpClient;
+  private final HttpHelper httpHelper;
 
-  public TheMovieDatabaseTvShowRepository(String apiKey, HttpClient httpClient) {
+  public TheMovieDatabaseTvShowRepository(String apiKey, HttpHelper httpHelper) {
     this.apiKey = checkNotNull(apiKey);
-    this.httpClient = checkNotNull(httpClient);
+    this.httpHelper = checkNotNull(httpHelper);
   }
 
   @Override
@@ -36,7 +36,7 @@ public class TheMovieDatabaseTvShowRepository implements TvShowRepository {
     String uri =
         "https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s?api_key=%s"
             .formatted(showId, season, episode, apiKey);
-    TvEpisodeDetails response = httpClient.get(uri, TvEpisodeDetails.class);
+    TvEpisodeDetailsResponse response = httpHelper.get(uri, TvEpisodeDetailsResponse.class);
     return response.name();
   }
 
@@ -45,7 +45,7 @@ public class TheMovieDatabaseTvShowRepository implements TvShowRepository {
     String uri =
         "https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
             .formatted(apiKey, URLEncoder.encode(showName), firstAirDateYear);
-    TvShowSearch response = httpClient.get(uri, TvShowSearch.class);
+    TvShowSearchResponse response = httpHelper.get(uri, TvShowSearchResponse.class);
     verify(response.results().size() == 1, "Expected exactly one result in response: %s", response);
     return response.results().get(0).id();
   }
