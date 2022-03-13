@@ -88,7 +88,9 @@ class TvShowRenamer {
       TvShowEnricher tvShowEnricher = new TvShowEnricher(theMovieDatabase);
       TvShowRenamer app = new TvShowRenamer(tvShowParser, tvShowEnricher);
 
-      app.run(Path.of(""), true);
+      Path showDir = Path.of("");
+      boolean dryRun = true;
+      app.run(showDir, dryRun);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
     }
