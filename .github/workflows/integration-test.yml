@@ -27,7 +27,7 @@ jobs:
       - name: Integration Test
         run: ./gradlew projects clean integrationTest --no-daemon --refresh-dependencies
         env:
-          THE_MOVIE_DB_API_KEY: ${{ env.THE_MOVIE_DB_API_KEY }}
+          THE_MOVIE_DB_API_KEY: ${{ secrets.THE_MOVIE_DB_API_KEY }}
 
       - name: Upload coverage to Codecov (Linux only)
         if: matrix.os == 'ubuntu-latest'
