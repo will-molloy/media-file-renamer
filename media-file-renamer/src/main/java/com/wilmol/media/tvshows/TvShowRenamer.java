@@ -55,7 +55,9 @@ class TvShowRenamer {
         Path newPath = episode.file().resolveSibling(newFileName);
 
         log.info(
-            "Renaming {}/{}: {} -> {}",
+            "Renaming Season {}/{} Episode {}/{}: {} -> {}",
+            padLength2(season.seasonNum()),
+            padLength2(tvShow.seasons().size()),
             padLength2(episode.episodeNum()),
             padLength2(season.episodes().size()),
             episode.file(),
@@ -79,8 +81,9 @@ class TvShowRenamer {
 
   public static void main(String[] args) {
     try {
+      String movieDbApiKey = System.getenv("THE_MOVIE_DB_API_KEY");
       TheMovieDatabaseTvShowRepository tvShowRepository =
-          new TheMovieDatabaseTvShowRepository("", new HttpHelper(new JsonHelper()));
+          new TheMovieDatabaseTvShowRepository(movieDbApiKey, new HttpHelper(new JsonHelper()));
       TvShowRenamer app = new TvShowRenamer(tvShowRepository);
       app.run(Path.of("J:\\Shows\\Breaking Bad (2008)"), true);
     } catch (Throwable e) {
