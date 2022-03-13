@@ -1,4 +1,4 @@
-package com.wilmol.media.tvshows;
+package com.wilmol.media.tvshows.parser;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -14,31 +14,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * TV show.
+ * Responsible for parsing TV show directory into Java object.
  *
- * @param showName show name
- * @param showYear show year (first air date)
- * @param seasons seasons
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
-public record TvShow(String showName, int showYear, List<Season> seasons) {
-
-  /**
-   * TV show season.
-   *
-   * @param seasonNum season number
-   * @param directory path to season directory
-   * @param episodes episodes
-   */
-  public record Season(int seasonNum, Path directory, List<Episode> episodes) {}
-
-  /**
-   * TV show episode.
-   *
-   * @param episodeNum episode number
-   * @param file path to episode file (video)
-   */
-  public record Episode(int episodeNum, Path file) {}
+public class TvShowParser {
 
   private static final Logger log = LogManager.getLogger();
 
@@ -51,7 +31,7 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
    * @param showDir path to show directory
    * @return {@link TvShow}
    */
-  public static TvShow parseTvShow(Path showDir) {
+  public TvShow parse(Path showDir) {
     checkArgument(Files.isDirectory(showDir), "%s is not a directory", showDir);
     String showDirName = showDir.getFileName().toString();
     Matcher showDirMatcher = SHOW_DIR_PATTERN.matcher(showDirName);
@@ -60,14 +40,14 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
 
     String showName = showDirMatcher.group(1);
     int showYear = Integer.parseInt(showDirMatcher.group(2));
-    List<Season> seasons = parseSeasons(showDir);
+    List<TvShow.Season> seasons = parseSeasons(showDir);
 
     TvShow tvShow = new TvShow(showName, showYear, seasons);
     log.info("Parsed TV show: {}", tvShow);
     return tvShow;
   }
 
-  private static List<Season> parseSeasons(Path showDir) {
+  private List<TvShow.Season> parseSeasons(Path showDir) {
     try {
       List<Path> seasonDirs = Files.list(showDir).toList();
       for (Path seasonDir : seasonDirs) {
@@ -87,8 +67,8 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
       return IntStream.rangeClosed(1, seasonDirs.size())
           .mapToObj(
               seasonNum -> {
-                List<Episode> episodes = parseEpisodes(seasonDirs.get(seasonNum - 1));
-                return new Season(seasonNum, seasonDirs.get(seasonNum - 1), episodes);
+                List<TvShow.Episode> episodes = parseEpisodes(seasonDirs.get(seasonNum - 1));
+                return new TvShow.Season(seasonNum, seasonDirs.get(seasonNum - 1), episodes);
               })
           .toList();
     } catch (IOException e) {
@@ -98,7 +78,7 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
     }
   }
 
-  private static List<Episode> parseEpisodes(Path seasonDir) {
+  private List<TvShow.Episode> parseEpisodes(Path seasonDir) {
     try {
       List<Path> episodeFiles = Files.list(seasonDir).toList();
       for (Path episodeFile : episodeFiles) {
@@ -110,7 +90,7 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
       // TODO more complex logic to handle that??
       //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.
       return IntStream.rangeClosed(1, episodeFiles.size())
-          .mapToObj(episodeNum -> new Episode(episodeNum, episodeFiles.get(episodeNum - 1)))
+          .mapToObj(episodeNum -> new TvShow.Episode(episodeNum, episodeFiles.get(episodeNum - 1)))
           .toList();
     } catch (IOException e) {
       String msg = "Error parsing episodes for season: %s".formatted(seasonDir);

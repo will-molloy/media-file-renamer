@@ -59,7 +59,10 @@ public class TheMovieDatabase implements TvShowRepository {
         "https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
             .formatted(apiKey, URLEncoder.encode(showName), firstAirDateYear);
     TvShowSearchResponse response = httpHelper.get(uri, TvShowSearchResponse.class);
-    verify(response.results().size() == 1, "Expected exactly one result in response: %s", response);
+    verify(
+        response.results().size() == 1,
+        "Expected exactly one search result in response: %s",
+        response);
     return response.results().get(0).id();
   }
 
