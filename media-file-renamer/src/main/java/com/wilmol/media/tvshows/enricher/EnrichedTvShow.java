@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Enriched TV show.
+ * TV show with data enriched.
  *
  * @param showName show name
  * @param showYear show year (first air date)

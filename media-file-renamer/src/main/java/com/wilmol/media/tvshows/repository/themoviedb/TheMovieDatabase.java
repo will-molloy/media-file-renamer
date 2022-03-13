@@ -11,6 +11,10 @@ import com.wilmol.media.util.HttpHelper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,53 +37,54 @@ public class TheMovieDatabase implements TvShowRepository {
   }
 
   @Override
-  public String getEpisodeName(String showName, int firstAirDateYear, int season, int episode) {
-    log.info(
-        "getEpisodeName(showName={}, firstAirDateYear={}, season={}, episode={})",
-        showName,
-        firstAirDateYear,
-        season,
-        episode);
+  public Map<Integer, String> getEpisodeNames(String showName, int showYear, int season) {
+    log.info("getEpisodeNames(showName={}, showYear={}, season={})", showName, showYear, season);
 
-    int showId = getIdCache.getUnchecked(new GetIdCacheKey(showName, firstAirDateYear));
+    int showId = getIdCache.getUnchecked(new GetIdCacheKey(showName, showYear));
 
-    // https://developers.themoviedb.org/3/tv-episodes/get-tv-episode-details
     String uri =
-        "https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s?api_key=%s"
-            .formatted(showId, season, episode, apiKey);
-    TvEpisodeDetailsResponse response = httpHelper.get(uri, TvEpisodeDetailsResponse.class);
+        "https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s".formatted(showId, season, apiKey);
+    TvSeasonDetailsResponse response = httpHelper.get(uri, TvSeasonDetailsResponse.class);
 
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      log.error("Error sleeping", e);
-    }
-
-    return response.name();
+    List<TvSeasonDetailsResponse.Episode> episodes = response.episodes();
+    return IntStream.rangeClosed(1, episodes.size())
+        .boxed()
+        .collect(Collectors.toMap(Function.identity(), i -> episodes.get(i - 1).name()));
   }
 
   private final LoadingCache<GetIdCacheKey, Integer> getIdCache =
       CacheBuilder.newBuilder()
-          .build(CacheLoader.from(key -> getShowId(key.showName(), key.firstAirDateYear())));
+          .build(CacheLoader.from(key -> getShowId(key.showName(), key.showYear())));
 
-  private int getShowId(String showName, int firstAirDateYear) {
-    log.info("getShowId(showName={}, firstAirDateYear={})", showName, firstAirDateYear);
+  private int getShowId(String showName, int showYear) {
+    log.info("getShowId(showName={}, showYear={})", showName, showYear);
 
-    // https://developers.themoviedb.org/3/search/search-tv-shows
     String uri =
         "https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
-            .formatted(
-                apiKey, URLEncoder.encode(showName, StandardCharsets.UTF_8), firstAirDateYear);
-    List<TvShowSearchResponse.Result> searchResults =
-        httpHelper.get(uri, TvShowSearchResponse.class).results();
+            .formatted(apiKey, URLEncoder.encode(showName, StandardCharsets.UTF_8), showYear);
+    TvShowSearchResponse response = httpHelper.get(uri, TvShowSearchResponse.class);
 
-    verify(searchResults.size() >= 1, "No search results for: %s (%s)", showName, firstAirDateYear);
+    List<TvShowSearchResponse.Result> searchResults = response.results();
+    verify(searchResults.size() >= 1, "No search results for: %s (%s)", showName, showYear);
     if (searchResults.size() > 1) {
       log.warn(
-          "Multiple search results for: {} ({}): {}", showName, firstAirDateYear, searchResults);
+          "Multiple search results for: {} ({}): {}. Taking the first one",
+          showName,
+          showYear,
+          searchResults);
     }
     return searchResults.get(0).id();
   }
 
-  private record GetIdCacheKey(String showName, int firstAirDateYear) {}
+  private record GetIdCacheKey(String showName, int showYear) {}
+
+  // https://developers.themoviedb.org/3/search/search-tv-shows
+  private record TvShowSearchResponse(List<Result> results) {
+    private record Result(int id) {}
+  }
+
+  // https://developers.themoviedb.org/3/tv-seasons/get-tv-season-details
+  private record TvSeasonDetailsResponse(List<Episode> episodes) {
+    private record Episode(String name) {}
+  }
 }

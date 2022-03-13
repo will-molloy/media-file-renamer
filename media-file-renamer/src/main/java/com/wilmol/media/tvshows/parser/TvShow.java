@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * TV show.
+ * Parsed TV show.
  *
  * @param showName show name
  * @param showYear show year (first air date)
