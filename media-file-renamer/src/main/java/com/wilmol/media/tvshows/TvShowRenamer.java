@@ -4,9 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-import com.wilmol.media.tvshows.parser.TvShow;
+import com.wilmol.media.tvshows.enricher.EnrichedTvShow;
+import com.wilmol.media.tvshows.enricher.TvShowEnricher;
 import com.wilmol.media.tvshows.parser.TvShowParser;
-import com.wilmol.media.tvshows.repository.TvShowRepository;
 import com.wilmol.media.tvshows.repository.themoviedb.TheMovieDatabase;
 import com.wilmol.media.util.HttpHelper;
 import com.wilmol.media.util.JsonHelper;
@@ -25,26 +25,23 @@ class TvShowRenamer {
 
   private static final Logger log = LogManager.getLogger();
 
-  private final TvShowRepository tvShowRepository;
   private final TvShowParser tvShowParser;
+  private final TvShowEnricher tvShowEnricher;
 
-  TvShowRenamer(TvShowRepository tvShowRepository, TvShowParser tvShowParser) {
-    this.tvShowRepository = checkNotNull(tvShowRepository);
+  TvShowRenamer(TvShowParser tvShowParser, TvShowEnricher tvShowEnricher) {
     this.tvShowParser = checkNotNull(tvShowParser);
+    this.tvShowEnricher = checkNotNull(tvShowEnricher);
   }
 
   void run(Path showDir, boolean dryRun) throws IOException {
     Stopwatch stopwatch = Stopwatch.createStarted();
     log.info("run(showDir={}, dryRun={}) started", showDir, dryRun);
 
-    TvShow tvShow = tvShowParser.parse(showDir);
+    EnrichedTvShow tvShow = tvShowEnricher.enrich(tvShowParser.parse(showDir));
 
-    for (TvShow.Season season : tvShow.seasons()) {
-      for (TvShow.Episode episode : season.episodes()) {
-        String episodeName =
-            tvShowRepository.getEpisodeName(
-                tvShow.showName(), tvShow.showYear(), season.seasonNum(), episode.episodeNum());
-
+    for (EnrichedTvShow.EnrichedSeason season : tvShow.seasons()) {
+      log.info("Processing season {} ({} episodes)", season.seasonNum(), season.episodes().size());
+      for (EnrichedTvShow.EnrichedEpisode episode : season.episodes()) {
         String fileName = episode.file().getFileName().toString();
         String videoFileSuffix = fileName.substring(fileName.lastIndexOf("."));
 
@@ -54,18 +51,11 @@ class TvShowRenamer {
                     tvShow.showName(),
                     padLength2(season.seasonNum()),
                     padLength2(episode.episodeNum()),
-                    episodeName,
+                    episode.episodeName().replaceAll("[.]", ""),
                     videoFileSuffix);
         Path newPath = episode.file().resolveSibling(newFileName);
 
-        log.info(
-            "Renaming Season {}/{} Episode {}/{}: {} -> {}",
-            padLength2(season.seasonNum()),
-            padLength2(tvShow.seasons().size()),
-            padLength2(episode.episodeNum()),
-            padLength2(season.episodes().size()),
-            episode.file(),
-            newPath);
+        log.info("Renaming: {} -> {}", episode.file(), newPath);
         if (!dryRun) {
           Files.move(episode.file(), newPath);
         }
@@ -86,10 +76,14 @@ class TvShowRenamer {
   public static void main(String[] args) {
     try {
       String movieDbApiKey = System.getenv("THE_MOVIE_DB_API_KEY");
+      checkNotNull(movieDbApiKey, "THE_MOVIE_DB_API_KEY not set");
       TheMovieDatabase theMovieDatabase =
           new TheMovieDatabase(movieDbApiKey, new HttpHelper(new JsonHelper()));
+
       TvShowParser tvShowParser = new TvShowParser();
-      TvShowRenamer app = new TvShowRenamer(theMovieDatabase, tvShowParser);
+      TvShowEnricher tvShowEnricher = new TvShowEnricher(theMovieDatabase);
+      TvShowRenamer app = new TvShowRenamer(tvShowParser, tvShowEnricher);
+
       app.run(Path.of("J:\\Shows\\Breaking Bad (2008)"), true);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
