@@ -49,6 +49,12 @@ public class TheMovieDatabase implements TvShowRepository {
             .formatted(showId, season, episode, apiKey);
     TvEpisodeDetailsResponse response = httpHelper.get(uri, TvEpisodeDetailsResponse.class);
 
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      log.error("Error sleeping", e);
+    }
+
     return response.name();
   }
 
