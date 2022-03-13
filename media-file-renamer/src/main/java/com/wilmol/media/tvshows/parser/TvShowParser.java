@@ -63,7 +63,7 @@ public class TvShowParser {
       }
 
       // assumed 'seasonDirs' are in sorted order
-      // They'll need to same it like 'Season 09' otherwise 'Season 10' comes before 'Season 9'
+      // They'll need to name it like 'Season 09' otherwise 'Season 10' comes before 'Season 9'
       // TODO more complex logic to handle that??
       return IntStream.rangeClosed(1, seasonDirs.size())
           .mapToObj(
@@ -87,7 +87,7 @@ public class TvShowParser {
       }
 
       // similarly, assumed 'episodeFiles' are in sorted order
-      // They'll need to same it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
+      // They'll need to name it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
       // TODO more complex logic to handle that??
       //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.
       return IntStream.rangeClosed(1, episodeFiles.size())

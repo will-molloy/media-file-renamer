@@ -9,6 +9,8 @@ import com.google.common.cache.LoadingCache;
 import com.wilmol.media.tvshows.repository.TvShowRepository;
 import com.wilmol.media.util.HttpHelper;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,6 +40,7 @@ public class TheMovieDatabase implements TvShowRepository {
         firstAirDateYear,
         season,
         episode);
+
     int showId = getIdCache.getUnchecked(new GetIdCacheKey(showName, firstAirDateYear));
 
     // https://developers.themoviedb.org/3/tv-episodes/get-tv-episode-details
@@ -45,6 +48,7 @@ public class TheMovieDatabase implements TvShowRepository {
         "https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s?api_key=%s"
             .formatted(showId, season, episode, apiKey);
     TvEpisodeDetailsResponse response = httpHelper.get(uri, TvEpisodeDetailsResponse.class);
+
     return response.name();
   }
 
@@ -54,16 +58,21 @@ public class TheMovieDatabase implements TvShowRepository {
 
   private int getShowId(String showName, int firstAirDateYear) {
     log.info("getShowId(showName={}, firstAirDateYear={})", showName, firstAirDateYear);
+
     // https://developers.themoviedb.org/3/search/search-tv-shows
     String uri =
         "https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
-            .formatted(apiKey, URLEncoder.encode(showName), firstAirDateYear);
-    TvShowSearchResponse response = httpHelper.get(uri, TvShowSearchResponse.class);
-    verify(
-        response.results().size() == 1,
-        "Expected exactly one search result in response: %s",
-        response);
-    return response.results().get(0).id();
+            .formatted(
+                apiKey, URLEncoder.encode(showName, StandardCharsets.UTF_8), firstAirDateYear);
+    List<TvShowSearchResponse.Result> searchResults =
+        httpHelper.get(uri, TvShowSearchResponse.class).results();
+
+    verify(searchResults.size() >= 1, "No search results for: %s (%s)", showName, firstAirDateYear);
+    if (searchResults.size() > 1) {
+      log.warn(
+          "Multiple search results for: {} ({}): {}", showName, firstAirDateYear, searchResults);
+    }
+    return searchResults.get(0).id();
   }
 
   private record GetIdCacheKey(String showName, int firstAirDateYear) {}

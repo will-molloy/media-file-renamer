@@ -32,11 +32,11 @@ public class TvShowEnricher {
   public EnrichedTvShow enrich(TvShow tvShow) {
     log.info("enrich(tvShow={})", tvShow);
     List<EnrichedTvShow.EnrichedSeason> seasons =
-        tvShow.seasons().stream()
+        tvShow.seasons().parallelStream()
             .map(
                 season -> {
                   List<EnrichedTvShow.EnrichedEpisode> episodes =
-                      season.episodes().stream()
+                      season.episodes().parallelStream()
                           .map(
                               episode -> {
                                 String episodeName =
