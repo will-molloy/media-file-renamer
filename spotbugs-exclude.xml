@@ -12,8 +12,12 @@
     <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
 
+  <!-- False positive null checks -->
   <Match>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+  </Match>
+  <Match>
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
   </Match>
 
 </FindBugsFilter>
