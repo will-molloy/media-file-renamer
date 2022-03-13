@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.wilmol.media.tvshows.repository.TvShowRepository;
-import com.wilmol.media.tvshows.repository.themoviedb.TheMovieDatabaseTvShowRepository;
+import com.wilmol.media.tvshows.repository.themoviedb.TheMovieDatabase;
 import com.wilmol.media.util.HttpHelper;
 import com.wilmol.media.util.JsonHelper;
 import java.io.IOException;
@@ -82,9 +82,9 @@ class TvShowRenamer {
   public static void main(String[] args) {
     try {
       String movieDbApiKey = System.getenv("THE_MOVIE_DB_API_KEY");
-      TheMovieDatabaseTvShowRepository tvShowRepository =
-          new TheMovieDatabaseTvShowRepository(movieDbApiKey, new HttpHelper(new JsonHelper()));
-      TvShowRenamer app = new TvShowRenamer(tvShowRepository);
+      TheMovieDatabase theMovieDatabase =
+          new TheMovieDatabase(movieDbApiKey, new HttpHelper(new JsonHelper()));
+      TvShowRenamer app = new TvShowRenamer(theMovieDatabase);
       app.run(Path.of("J:\\Shows\\Breaking Bad (2008)"), true);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
