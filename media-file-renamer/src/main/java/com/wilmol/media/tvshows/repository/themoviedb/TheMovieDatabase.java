@@ -3,6 +3,7 @@ package com.wilmol.media.tvshows.repository.themoviedb;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Verify.verify;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -11,9 +12,9 @@ import com.wilmol.media.tvshows.repository.TvShowRepository;
 import com.wilmol.media.util.HttpHelper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -38,7 +39,7 @@ public class TheMovieDatabase implements TvShowRepository {
 
   @Override
   public Map<Integer, String> getEpisodeNames(String showName, int showYear, int season) {
-    log.info("getEpisodeNames(showName={}, showYear={}, season={})", showName, showYear, season);
+    log.debug("getEpisodeNames(showName={}, showYear={}, season={})", showName, showYear, season);
 
     int showId = getIdCache.getUnchecked(new GetIdCacheKey(showName, showYear));
 
@@ -49,7 +50,7 @@ public class TheMovieDatabase implements TvShowRepository {
     List<TvSeasonDetailsResponse.Episode> episodes = response.episodes();
     return episodes.stream()
         .collect(
-            Collectors.toMap(
+            toUnmodifiableMap(
                 TvSeasonDetailsResponse.Episode::episode_number,
                 TvSeasonDetailsResponse.Episode::name));
   }
@@ -59,7 +60,7 @@ public class TheMovieDatabase implements TvShowRepository {
           .build(CacheLoader.from(key -> getShowId(key.showName(), key.showYear())));
 
   private int getShowId(String showName, int showYear) {
-    log.info("getShowId(showName={}, showYear={})", showName, showYear);
+    log.debug("getShowId(showName={}, showYear={})", showName, showYear);
 
     String uri =
         "https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
@@ -75,7 +76,14 @@ public class TheMovieDatabase implements TvShowRepository {
           showYear,
           searchResults);
     }
-    return searchResults.get(0).id();
+
+    TvShowSearchResponse.Result searchResult = searchResults.get(0);
+    log.info(
+        "Using data for show: {}. First aired: {}. Overview: {}",
+        searchResult.name(),
+        searchResult.first_air_date(),
+        searchResult.overview());
+    return searchResult.id();
   }
 
   private record GetIdCacheKey(String showName, int showYear) {}
@@ -86,11 +94,12 @@ public class TheMovieDatabase implements TvShowRepository {
       checkNotNull(results, "null results list");
     }
 
-    record Result(int id, String name, String overview) {
+    record Result(int id, String name, String overview, LocalDate first_air_date) {
       Result {
         checkArgument(id > 0, "id (%s) <= 0", id);
         checkArgument(Strings.isNotBlank(name), "blank name");
         checkArgument(Strings.isNotBlank(overview), "blank overview");
+        checkNotNull(first_air_date, "null first_air_date");
       }
     }
   }

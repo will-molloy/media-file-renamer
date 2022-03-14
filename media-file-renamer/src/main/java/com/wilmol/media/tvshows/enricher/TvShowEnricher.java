@@ -31,11 +31,13 @@ public class TvShowEnricher {
    * @return {@link EnrichedTvShow}
    */
   public EnrichedTvShow enrich(TvShow tvShow) {
+    log.info("Enriching data for show: {} ({})", tvShow.showName(), tvShow.showYear());
+
     List<EnrichedTvShow.EnrichedSeason> seasons = enrichSeasons(tvShow);
     EnrichedTvShow enrichedTvShow =
         new EnrichedTvShow(tvShow.showName(), tvShow.showYear(), seasons);
 
-    log.info("Enriched TV show: {}", enrichedTvShow);
+    log.debug("Enriched TV show: {}", enrichedTvShow);
     return enrichedTvShow;
   }
 
@@ -55,7 +57,7 @@ public class TvShowEnricher {
         tvShowRepository.getEpisodeNames(tvShow.showName(), tvShow.showYear(), season.seasonNum());
     if (episodeNames.size() != season.episodes().size()) {
       log.warn(
-          "Found {} episodes for {} ({}) Season {} but parsed {} video files",
+          "Repository found {} episodes for {} ({}) Season {} but parser parsed {} episodes",
           episodeNames.size(),
           tvShow.showName(),
           tvShow.showYear(),

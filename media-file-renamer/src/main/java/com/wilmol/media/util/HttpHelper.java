@@ -50,7 +50,7 @@ public class HttpHelper {
   }
 
   private HttpResponse<String> sendRequest(HttpRequest request) {
-    log.info("Sending request: {}", request);
+    log.debug("Sending request: {}", request);
     try {
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());

@@ -32,6 +32,7 @@ public class TvShowParser {
    * @return {@link TvShow}
    */
   public TvShow parse(Path showDir) {
+    log.info("Parsing directory: {}", showDir);
     checkArgument(Files.isDirectory(showDir), "%s is not a directory", showDir);
     String showDirName = showDir.getFileName().toString();
     Matcher showDirMatcher = SHOW_DIR_PATTERN.matcher(showDirName);
@@ -43,13 +44,14 @@ public class TvShowParser {
     List<TvShow.Season> seasons = parseSeasons(showDir);
 
     TvShow tvShow = new TvShow(showName, showYear, seasons);
-    log.info("Parsed TV show: {}", tvShow);
+    log.debug("Parsed TV show: {}", tvShow);
     return tvShow;
   }
 
   private List<TvShow.Season> parseSeasons(Path showDir) {
     try {
       List<Path> seasonDirs = Files.list(showDir).toList();
+      log.info("Detected {} seasons", seasonDirs.size());
       for (Path seasonDir : seasonDirs) {
         checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
         String seasonDirName = seasonDir.getFileName().toString();
@@ -68,6 +70,7 @@ public class TvShowParser {
           .mapToObj(
               seasonNum -> {
                 List<TvShow.Episode> episodes = parseEpisodes(seasonDirs.get(seasonNum - 1));
+                log.info("Detected {} episodes for season {}", episodes.size(), seasonNum);
                 return new TvShow.Season(seasonNum, seasonDirs.get(seasonNum - 1), episodes);
               })
           .toList();
