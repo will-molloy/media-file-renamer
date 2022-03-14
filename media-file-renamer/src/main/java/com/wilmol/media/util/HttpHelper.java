@@ -22,9 +22,9 @@ public class HttpHelper {
   private static final Logger log = LogManager.getLogger();
 
   private static final Duration TIMEOUT = Duration.ofSeconds(30);
+  private static final Range<Integer> SUCCESSFUL_CODES = Range.closedOpen(200, 300);
 
   private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
-
   private final JsonHelper jsonHelper;
 
   public HttpHelper(JsonHelper jsonHelper) {
@@ -40,24 +40,32 @@ public class HttpHelper {
    * @return deserialised response
    */
   public <T> T get(String uri, Class<T> type) {
+    HttpRequest request =
+        HttpRequest.newBuilder().GET().uri(URI.create(uri)).timeout(TIMEOUT).build();
+
+    HttpResponse<String> response = sendRequest(request);
+
+    String body = response.body();
+    return jsonHelper.deserialise(body, type);
+  }
+
+  private HttpResponse<String> sendRequest(HttpRequest request) {
+    log.info("Sending request: {}", request);
     try {
-      HttpRequest request =
-          HttpRequest.newBuilder().GET().uri(URI.create(uri)).timeout(TIMEOUT).build();
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-      if (Range.closedOpen(200, 300).contains(response.statusCode())) {
-        String body = response.body();
-        return jsonHelper.deserialise(body, type);
+      if (SUCCESSFUL_CODES.contains(response.statusCode())) {
+        return response;
       }
 
       String msg =
-          "Error sending GET: %s. Received unsuccessful status code: %s"
-              .formatted(uri, response.statusCode());
+          "Error sending request: %s. Received unsuccessful status code: %s"
+              .formatted(request, response.statusCode());
       log.error(msg);
       throw new RuntimeException(msg);
     } catch (IOException | InterruptedException e) {
-      String msg = "Error sending GET %s".formatted(uri);
+      String msg = "Error sending request %s".formatted(request);
       log.error(msg, e);
       throw new RuntimeException(msg, e);
     }
