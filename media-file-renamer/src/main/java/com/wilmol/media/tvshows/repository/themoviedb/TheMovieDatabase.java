@@ -1,5 +1,6 @@
 package com.wilmol.media.tvshows.repository.themoviedb;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Verify.verify;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
 /**
  * Client for calling The Movie Database API (for TV Show info).
@@ -65,7 +67,7 @@ public class TheMovieDatabase implements TvShowRepository {
     TvShowSearchResponse response = httpHelper.get(uri, TvShowSearchResponse.class);
 
     List<TvShowSearchResponse.Result> searchResults = response.results();
-    verify(searchResults.size() >= 1, "No search results for: %s (%s)", showName, showYear);
+    verify(!searchResults.isEmpty(), "No search results for: %s (%s)", showName, showYear);
     if (searchResults.size() > 1) {
       log.warn(
           "Multiple search results for: {} ({}): {}. Taking the first one",
@@ -80,11 +82,27 @@ public class TheMovieDatabase implements TvShowRepository {
 
   // https://developers.themoviedb.org/3/search/search-tv-shows
   private record TvShowSearchResponse(List<Result> results) {
-    private record Result(int id) {}
+    TvShowSearchResponse {
+      checkNotNull(results);
+    }
+
+    record Result(int id) {
+      Result {
+        checkArgument(id > 0);
+      }
+    }
   }
 
   // https://developers.themoviedb.org/3/tv-seasons/get-tv-season-details
   private record TvSeasonDetailsResponse(List<Episode> episodes) {
-    private record Episode(String name) {}
+    TvSeasonDetailsResponse {
+      checkNotNull(episodes);
+    }
+
+    record Episode(String name) {
+      Episode {
+        checkArgument(Strings.isNotBlank(name));
+      }
+    }
   }
 }
