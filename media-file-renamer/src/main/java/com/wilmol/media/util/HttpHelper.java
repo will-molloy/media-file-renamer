@@ -4,11 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Range;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +23,8 @@ public class HttpHelper {
   private static final Duration TIMEOUT = Duration.ofSeconds(30);
   private static final Range<Integer> SUCCESSFUL_CODES = Range.closedOpen(200, 300);
 
-  private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
+  private final OkHttpClient httpClient = new OkHttpClient.Builder().build();
+
   private final JsonHelper jsonHelper;
 
   public HttpHelper(JsonHelper jsonHelper) {
@@ -34,40 +34,37 @@ public class HttpHelper {
   /**
    * Sends a GET request and deserialises the JSON response.
    *
-   * @param uri uri to send the GET request to
+   * @param url url to send the GET request to
    * @param type deserialised object type
    * @param <T> deserialised object type
    * @return deserialised response
    */
-  public <T> T get(String uri, Class<T> type) {
-    HttpRequest request =
-        HttpRequest.newBuilder().GET().uri(URI.create(uri)).timeout(TIMEOUT).build();
+  public <T> T get(String url, Class<T> type) {
+    Request request =
+        new Request.Builder().url(url).header("Accept", "application/json").get().build();
 
-    HttpResponse<String> response = sendRequest(request);
+    String jsonResponseBody = sendRequest(request);
 
-    String body = response.body();
-    log.debug("Received response body: {}", body);
-    return jsonHelper.deserialise(body, type);
+    return jsonHelper.deserialise(jsonResponseBody, type);
   }
 
-  private HttpResponse<String> sendRequest(HttpRequest request) {
+  private String sendRequest(Request request) {
     log.debug("Sending request: {}", request);
     try {
-      HttpResponse<String> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+      Response response = httpClient.newCall(request).execute();
 
-      if (SUCCESSFUL_CODES.contains(response.statusCode())) {
+      if (response.isSuccessful()) {
         log.debug("Received successful response: {}", response);
-        return response;
+        String responseBody = response.body().string();
+        log.debug("Received response body: {}", responseBody);
+        return responseBody;
       }
 
-      String msg =
-          "Error sending request: %s. Received unsuccessful status code: %s"
-              .formatted(request, response.statusCode());
+      String msg = "Received unsuccessful response: %s".formatted(response);
       log.error(msg);
       throw new RuntimeException(msg);
-    } catch (IOException | InterruptedException e) {
-      String msg = "Error sending request %s".formatted(request);
+    } catch (IOException e) {
+      String msg = "Error sending request: %s".formatted(request);
       log.error(msg, e);
       throw new RuntimeException(msg, e);
     }

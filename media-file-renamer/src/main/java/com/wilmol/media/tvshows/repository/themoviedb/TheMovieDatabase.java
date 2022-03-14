@@ -29,6 +29,8 @@ public class TheMovieDatabase implements TvShowRepository {
 
   private static final Logger log = LogManager.getLogger();
 
+  private static final String BASE_URL = "https://api.themoviedb.org/3";
+
   private final String apiKey;
   private final HttpHelper httpHelper;
 
@@ -43,9 +45,8 @@ public class TheMovieDatabase implements TvShowRepository {
 
     int showId = getIdCache.getUnchecked(new GetIdCacheKey(showName, showYear));
 
-    String uri =
-        "https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s".formatted(showId, season, apiKey);
-    TvSeasonDetailsResponse response = httpHelper.get(uri, TvSeasonDetailsResponse.class);
+    String url = "%s/tv/%s/season/%s?api_key=%s".formatted(BASE_URL, showId, season, apiKey);
+    TvSeasonDetailsResponse response = httpHelper.get(url, TvSeasonDetailsResponse.class);
 
     List<TvSeasonDetailsResponse.Episode> episodes = response.episodes();
     return episodes.stream()
@@ -62,10 +63,11 @@ public class TheMovieDatabase implements TvShowRepository {
   private int getShowId(String showName, int showYear) {
     log.debug("getShowId(showName={}, showYear={})", showName, showYear);
 
-    String uri =
-        "https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
-            .formatted(apiKey, URLEncoder.encode(showName, StandardCharsets.UTF_8), showYear);
-    TvShowSearchResponse response = httpHelper.get(uri, TvShowSearchResponse.class);
+    String url =
+        "%s/search/tv?api_key=%s&query=%s&first_air_date_year=%s"
+            .formatted(
+                BASE_URL, apiKey, URLEncoder.encode(showName, StandardCharsets.UTF_8), showYear);
+    TvShowSearchResponse response = httpHelper.get(url, TvShowSearchResponse.class);
 
     List<TvShowSearchResponse.Result> searchResults = response.results();
     verify(!searchResults.isEmpty(), "No search results for: %s (%s)", showName, showYear);
