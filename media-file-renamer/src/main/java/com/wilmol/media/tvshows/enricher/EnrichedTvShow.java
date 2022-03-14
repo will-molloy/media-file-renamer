@@ -15,11 +15,12 @@ import org.apache.logging.log4j.util.Strings;
  * @param seasons seasons
  * @author <a href=https://wilmol.com>Will Molloy</a>
  */
+// TODO duplicate with TvShow class. Anyway to inherit code from another record?
 public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason> seasons) {
   public EnrichedTvShow {
-    checkArgument(Strings.isNotBlank(showName));
-    checkArgument(showYear >= 1900);
-    checkArgument(!seasons.isEmpty());
+    checkArgument(Strings.isNotBlank(showName), "blank showName");
+    checkArgument(showYear > 0, "showYear (%s) <= 0", showYear);
+    checkArgument(!seasons.isEmpty(), "empty seasons list");
   }
 
   /**
@@ -31,9 +32,9 @@ public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason>
    */
   public record EnrichedSeason(int seasonNum, Path directory, List<EnrichedEpisode> episodes) {
     public EnrichedSeason {
-      checkArgument(seasonNum > 0);
-      checkArgument(Files.isDirectory(directory));
-      checkArgument(!episodes.isEmpty());
+      checkArgument(seasonNum > 0, "seasonNum (%s) <= 0", seasonNum);
+      checkArgument(Files.isDirectory(directory), "directory (%s) is not a directory", directory);
+      checkArgument(!episodes.isEmpty(), "empty episodes list");
     }
   }
 
@@ -46,9 +47,9 @@ public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason>
    */
   public record EnrichedEpisode(int episodeNum, Path file, String episodeName) {
     public EnrichedEpisode {
-      checkArgument(episodeNum > 0);
-      checkArgument(Files.isRegularFile(file));
-      checkArgument(Strings.isNotBlank(episodeName));
+      checkArgument(episodeNum > 0, "episodeNum (%s) <= 0", episodeNum);
+      checkArgument(Files.isRegularFile(file), "file (%s) is not a regular file", file);
+      checkArgument(Strings.isNotBlank(episodeName), "blank episodeName");
     }
   }
 }

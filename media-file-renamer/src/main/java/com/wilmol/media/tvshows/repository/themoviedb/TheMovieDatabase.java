@@ -13,9 +13,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -49,9 +47,11 @@ public class TheMovieDatabase implements TvShowRepository {
     TvSeasonDetailsResponse response = httpHelper.get(uri, TvSeasonDetailsResponse.class);
 
     List<TvSeasonDetailsResponse.Episode> episodes = response.episodes();
-    return IntStream.rangeClosed(1, episodes.size())
-        .boxed()
-        .collect(Collectors.toMap(Function.identity(), i -> episodes.get(i - 1).name()));
+    return episodes.stream()
+        .collect(
+            Collectors.toMap(
+                TvSeasonDetailsResponse.Episode::episode_number,
+                TvSeasonDetailsResponse.Episode::name));
   }
 
   private final LoadingCache<GetIdCacheKey, Integer> getIdCache =
@@ -83,12 +83,14 @@ public class TheMovieDatabase implements TvShowRepository {
   // https://developers.themoviedb.org/3/search/search-tv-shows
   private record TvShowSearchResponse(List<Result> results) {
     TvShowSearchResponse {
-      checkNotNull(results);
+      checkNotNull(results, "null results list");
     }
 
-    record Result(int id) {
+    record Result(int id, String name, String overview) {
       Result {
-        checkArgument(id > 0);
+        checkArgument(id > 0, "id (%s) <= 0", id);
+        checkArgument(Strings.isNotBlank(name), "blank name");
+        checkArgument(Strings.isNotBlank(overview), "blank overview");
       }
     }
   }
@@ -96,12 +98,16 @@ public class TheMovieDatabase implements TvShowRepository {
   // https://developers.themoviedb.org/3/tv-seasons/get-tv-season-details
   private record TvSeasonDetailsResponse(List<Episode> episodes) {
     TvSeasonDetailsResponse {
-      checkNotNull(episodes);
+      checkNotNull(episodes, "null episodes list");
     }
 
-    record Episode(String name) {
+    record Episode(int id, String name, String overview, int episode_number, int season_number) {
       Episode {
-        checkArgument(Strings.isNotBlank(name));
+        checkArgument(id > 0, "id (%s) <= 0", id);
+        checkArgument(Strings.isNotBlank(name), "blank name");
+        checkArgument(Strings.isNotBlank(overview), "blank overview");
+        checkArgument(episode_number > 0, "episode_number (%s) <= 0", episode_number);
+        checkArgument(season_number > 0, "season_number (%s) <= 0", season_number);
       }
     }
   }

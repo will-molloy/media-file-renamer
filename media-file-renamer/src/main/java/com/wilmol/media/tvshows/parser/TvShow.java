@@ -17,9 +17,9 @@ import org.apache.logging.log4j.util.Strings;
  */
 public record TvShow(String showName, int showYear, List<Season> seasons) {
   public TvShow {
-    checkArgument(Strings.isNotBlank(showName));
-    checkArgument(showYear >= 1900);
-    checkArgument(!seasons.isEmpty());
+    checkArgument(Strings.isNotBlank(showName), "blank showName");
+    checkArgument(showYear > 0, "showYear (%s) <= 0", showYear);
+    checkArgument(!seasons.isEmpty(), "empty seasons list");
   }
 
   /**
@@ -31,9 +31,9 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
    */
   public record Season(int seasonNum, Path directory, List<Episode> episodes) {
     public Season {
-      checkArgument(seasonNum > 0);
-      checkArgument(Files.isDirectory(directory));
-      checkArgument(!episodes.isEmpty());
+      checkArgument(seasonNum > 0, "seasonNum (%s) <= 0", seasonNum);
+      checkArgument(Files.isDirectory(directory), "directory (%s) is not a directory", directory);
+      checkArgument(!episodes.isEmpty(), "empty episodes list");
     }
   }
 
@@ -45,8 +45,8 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
    */
   public record Episode(int episodeNum, Path file) {
     public Episode {
-      checkArgument(episodeNum > 0);
-      checkArgument(Files.isRegularFile(file));
+      checkArgument(episodeNum > 0, "episodeNum (%s) <= 0", episodeNum);
+      checkArgument(Files.isRegularFile(file), "file (%s) is not a regular file", file);
     }
   }
 }

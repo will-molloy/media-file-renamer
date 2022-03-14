@@ -26,10 +26,11 @@ class TvShowRenamerIntegrationTest {
   private TvShowRenamer tvShowRenamer;
 
   @BeforeEach
-  void setUp() throws URISyntaxException {
+  void setUp() throws URISyntaxException, IOException {
     testData = Path.of(this.getClass().getSimpleName());
     fakeMkvFile = Path.of(Resources.getResource("fake.mkv").toURI());
     tvShowRenamer = TvShowRenamerFactory.construct();
+    tearDown();
   }
 
   @AfterEach
