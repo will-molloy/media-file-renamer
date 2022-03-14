@@ -2,9 +2,7 @@ package com.wilmol.media.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.Range;
 import java.io.IOException;
-import java.time.Duration;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -19,9 +17,6 @@ import org.apache.logging.log4j.Logger;
 public class HttpHelper {
 
   private static final Logger log = LogManager.getLogger();
-
-  private static final Duration TIMEOUT = Duration.ofSeconds(30);
-  private static final Range<Integer> SUCCESSFUL_CODES = Range.closedOpen(200, 300);
 
   private final OkHttpClient httpClient = new OkHttpClient.Builder().build();
 
