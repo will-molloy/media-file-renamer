@@ -61,7 +61,7 @@ public class TvShowParser {
             seasonDirMatcher);
       }
 
-      // assumed 'seasonDirs' are in sorted order
+      // assumed 'seasonDirs' are in sorted order starting with 'Season 01'
       // They'll need to name it like 'Season 09' otherwise 'Season 10' comes before 'Season 9'
       // TODO more complex logic to handle that??
       return IntStream.rangeClosed(1, seasonDirs.size())
@@ -85,7 +85,7 @@ public class TvShowParser {
         checkArgument(Files.isRegularFile(episodeFile), "%s is not a regular file", episodeFile);
       }
 
-      // similarly, assumed 'episodeFiles' are in sorted order
+      // similarly, assumed 'episodeFiles' are in sorted order starting with the first episode
       // They'll need to name it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
       // TODO more complex logic to handle that??
       //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.

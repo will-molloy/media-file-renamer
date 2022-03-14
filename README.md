@@ -23,15 +23,17 @@ Quickly renaming Movies, Tv Shows, etc.
 
 ### TV Show Renaming
 
+Right now it only renames the Episodes (i.e. video files)
+
 1. TV show must be stored in a particular way:
     - Root directory must be named like: `<Show Name> (<Show Year>)`
     - Then subdirectories of seasons:
         - Must be named like: `Season xx`
-        - It's assumed these subdirectories are in order
+        - It's assumed these subdirectories are in order, starting with `Season 01`
             - i.e. name it like `Season 09` otherwise `Season 10` comes before `Season 9`
     - Then episode files:
         - Can be named anyway you want (they're going to be renamed!)
-        - However, it's assumed they're in order
+        - However, it's assumed they're in order, starting with the first episode
             - i.e. name it like `Ep 09` otherwise `Ep 10` comes before `Ep 9`
     - For example:
       ```
@@ -69,3 +71,4 @@ Quickly renaming Movies, Tv Shows, etc.
              └── Breaking Bad S02E02 Grilled.mp4
              ...
       ```
+      - see [integration test](media-file-renamer/src/integrationTest/java/com/wilmol/media/tvshows/TvShowRenamerIntegrationTest.java) for bigger example
