@@ -137,6 +137,6 @@ class TvShowRenamerIntegrationTest {
   }
 
   private StreamSubject assertThatTestData() throws IOException {
-    return assertThat(Files.walk(testData).filter(Files::isRegularFile));
+    return assertThat(Files.walk(testData).filter(Files::isRegularFile).sorted());
   }
 }

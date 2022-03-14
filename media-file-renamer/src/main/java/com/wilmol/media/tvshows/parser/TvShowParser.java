@@ -50,7 +50,7 @@ public class TvShowParser {
 
   private List<TvShow.Season> parseSeasons(Path showDir) {
     try {
-      List<Path> seasonDirs = Files.list(showDir).toList();
+      List<Path> seasonDirs = Files.list(showDir).sorted().toList();
       log.info("Detected {} seasons", seasonDirs.size());
       for (Path seasonDir : seasonDirs) {
         checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
@@ -83,7 +83,7 @@ public class TvShowParser {
 
   private List<TvShow.Episode> parseEpisodes(Path seasonDir) {
     try {
-      List<Path> episodeFiles = Files.list(seasonDir).toList();
+      List<Path> episodeFiles = Files.list(seasonDir).sorted().toList();
       for (Path episodeFile : episodeFiles) {
         checkArgument(Files.isRegularFile(episodeFile), "%s is not a regular file", episodeFile);
       }
