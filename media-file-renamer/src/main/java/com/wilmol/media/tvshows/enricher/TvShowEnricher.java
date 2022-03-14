@@ -57,7 +57,8 @@ public class TvShowEnricher {
         tvShowRepository.getEpisodeNames(tvShow.showName(), tvShow.showYear(), season.seasonNum());
     if (episodeNames.size() != season.episodes().size()) {
       log.warn(
-          "Repository found {} episodes for {} ({}) Season {} but parser parsed {} episodes",
+          "{} found {} episodes for {} ({}) Season {} but parser parsed {} episodes",
+          tvShowRepository.getClass().getSimpleName(),
           episodeNames.size(),
           tvShow.showName(),
           tvShow.showYear(),

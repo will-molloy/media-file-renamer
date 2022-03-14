@@ -46,6 +46,7 @@ public class HttpHelper {
     HttpResponse<String> response = sendRequest(request);
 
     String body = response.body();
+    log.debug("Received response body: {}", body);
     return jsonHelper.deserialise(body, type);
   }
 
@@ -56,6 +57,7 @@ public class HttpHelper {
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
       if (SUCCESSFUL_CODES.contains(response.statusCode())) {
+        log.debug("Received successful response: {}", response);
         return response;
       }
 
