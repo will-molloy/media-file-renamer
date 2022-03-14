@@ -32,7 +32,6 @@ public class TvShowParser {
    * @return {@link TvShow}
    */
   public TvShow parse(Path showDir) {
-    log.info("parse(showDir={})", showDir);
     checkArgument(Files.isDirectory(showDir), "%s is not a directory", showDir);
     String showDirName = showDir.getFileName().toString();
     Matcher showDirMatcher = SHOW_DIR_PATTERN.matcher(showDirName);

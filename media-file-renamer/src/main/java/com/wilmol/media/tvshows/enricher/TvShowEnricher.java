@@ -31,42 +31,45 @@ public class TvShowEnricher {
    * @return {@link EnrichedTvShow}
    */
   public EnrichedTvShow enrich(TvShow tvShow) {
-    log.info("enrich(tvShow={})", tvShow);
-
-    List<EnrichedTvShow.EnrichedSeason> seasons =
-        tvShow.seasons().stream()
-            .map(
-                season -> {
-                  Map<Integer, String> episodeNames =
-                      tvShowRepository.getEpisodeNames(
-                          tvShow.showName(), tvShow.showYear(), season.seasonNum());
-                  if (episodeNames.size() != season.episodes().size()) {
-                    log.warn(
-                        "Found {} episodes for {} ({}) Season {} but only parsed {} video files",
-                        episodeNames.size(),
-                        tvShow.showName(),
-                        tvShow.showYear(),
-                        season.seasonNum(),
-                        season.episodes().size());
-                  }
-
-                  List<EnrichedTvShow.EnrichedEpisode> episodes =
-                      season.episodes().stream()
-                          .map(
-                              episode -> {
-                                String episodeName = episodeNames.get(episode.episodeNum());
-                                return new EnrichedTvShow.EnrichedEpisode(
-                                    episode.episodeNum(), episode.file(), episodeName);
-                              })
-                          .toList();
-                  return new EnrichedTvShow.EnrichedSeason(
-                      season.seasonNum(), season.directory(), episodes);
-                })
-            .toList();
-
+    List<EnrichedTvShow.EnrichedSeason> seasons = enrichSeasons(tvShow);
     EnrichedTvShow enrichedTvShow =
         new EnrichedTvShow(tvShow.showName(), tvShow.showYear(), seasons);
+
     log.info("Enriched TV show: {}", enrichedTvShow);
     return enrichedTvShow;
+  }
+
+  private List<EnrichedTvShow.EnrichedSeason> enrichSeasons(TvShow tvShow) {
+    return tvShow.seasons().stream()
+        .map(
+            season -> {
+              List<EnrichedTvShow.EnrichedEpisode> episodes = enrichEpisodes(tvShow, season);
+              return new EnrichedTvShow.EnrichedSeason(
+                  season.seasonNum(), season.directory(), episodes);
+            })
+        .toList();
+  }
+
+  private List<EnrichedTvShow.EnrichedEpisode> enrichEpisodes(TvShow tvShow, TvShow.Season season) {
+    Map<Integer, String> episodeNames =
+        tvShowRepository.getEpisodeNames(tvShow.showName(), tvShow.showYear(), season.seasonNum());
+    if (episodeNames.size() != season.episodes().size()) {
+      log.warn(
+          "Found {} episodes for {} ({}) Season {} but parsed {} video files",
+          episodeNames.size(),
+          tvShow.showName(),
+          tvShow.showYear(),
+          season.seasonNum(),
+          season.episodes().size());
+    }
+
+    return season.episodes().stream()
+        .map(
+            episode -> {
+              String episodeName = episodeNames.get(episode.episodeNum());
+              return new EnrichedTvShow.EnrichedEpisode(
+                  episode.episodeNum(), episode.file(), episodeName);
+            })
+        .toList();
   }
 }
