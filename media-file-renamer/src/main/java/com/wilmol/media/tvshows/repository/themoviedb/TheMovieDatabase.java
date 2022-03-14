@@ -72,11 +72,7 @@ public class TheMovieDatabase implements TvShowRepository {
     List<TvShowSearchResponse.Result> searchResults = response.results();
     verify(!searchResults.isEmpty(), "No search results for: %s (%s)", showName, showYear);
     if (searchResults.size() > 1) {
-      log.warn(
-          "Multiple search results for: {} ({}): {}. Taking the first one",
-          showName,
-          showYear,
-          searchResults);
+      log.warn("Multiple search results, taking the first one: {}", searchResults);
     }
 
     TvShowSearchResponse.Result searchResult = searchResults.get(0);
@@ -96,12 +92,12 @@ public class TheMovieDatabase implements TvShowRepository {
       checkNotNull(results, "null results list");
     }
 
-    record Result(int id, String name, String overview, LocalDate first_air_date) {
+    record Result(int id, String name, LocalDate first_air_date, String overview) {
       Result {
         checkArgument(id > 0, "id (%s) <= 0", id);
         checkArgument(Strings.isNotBlank(name), "blank name");
-        checkArgument(Strings.isNotBlank(overview), "blank overview");
         checkNotNull(first_air_date, "null first_air_date");
+        checkArgument(Strings.isNotBlank(overview), "blank overview");
       }
     }
   }
@@ -112,13 +108,13 @@ public class TheMovieDatabase implements TvShowRepository {
       checkNotNull(episodes, "null episodes list");
     }
 
-    record Episode(int id, String name, String overview, int episode_number, int season_number) {
+    record Episode(int id, int season_number, int episode_number, String name, String overview) {
       Episode {
         checkArgument(id > 0, "id (%s) <= 0", id);
+        checkArgument(season_number > 0, "season_number (%s) <= 0", season_number);
+        checkArgument(episode_number > 0, "episode_number (%s) <= 0", episode_number);
         checkArgument(Strings.isNotBlank(name), "blank name");
         checkArgument(Strings.isNotBlank(overview), "blank overview");
-        checkArgument(episode_number > 0, "episode_number (%s) <= 0", episode_number);
-        checkArgument(season_number > 0, "season_number (%s) <= 0", season_number);
       }
     }
   }

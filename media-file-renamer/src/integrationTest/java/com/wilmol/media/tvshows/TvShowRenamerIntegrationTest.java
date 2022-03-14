@@ -117,8 +117,7 @@ class TvShowRenamerIntegrationTest {
             season5.resolve("Breaking Bad S05E13 To'hajiilee.mkv"),
             season5.resolve("Breaking Bad S05E14 Ozymandias.mkv"),
             season5.resolve("Breaking Bad S05E15 Granite State.mkv"),
-            season5.resolve("Breaking Bad S05E16 Felina.mkv"))
-        .inOrder();
+            season5.resolve("Breaking Bad S05E16 Felina.mkv"));
   }
 
   private Path fakeSeason(Path showRoot, int seasonNum, int numEpisodes) throws IOException {
@@ -137,6 +136,6 @@ class TvShowRenamerIntegrationTest {
   }
 
   private StreamSubject assertThatTestData() throws IOException {
-    return assertThat(Files.walk(testData).filter(Files::isRegularFile).sorted());
+    return assertThat(Files.walk(testData).filter(Files::isRegularFile));
   }
 }
