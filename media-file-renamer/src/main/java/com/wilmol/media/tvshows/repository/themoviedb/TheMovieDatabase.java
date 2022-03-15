@@ -72,7 +72,7 @@ public class TheMovieDatabase implements TvShowRepository {
     List<TvShowSearchResponse.Result> searchResults = response.results();
     verify(!searchResults.isEmpty(), "No search results for: %s (%s)", showName, showYear);
     if (searchResults.size() > 1) {
-      log.warn("Multiple search results, taking the first one: {}", searchResults);
+      log.warn("{} search results, taking the first one: {}", searchResults.size(), searchResults);
     }
 
     TvShowSearchResponse.Result searchResult = searchResults.get(0);

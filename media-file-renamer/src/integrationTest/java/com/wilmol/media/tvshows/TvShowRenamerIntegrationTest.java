@@ -206,6 +206,32 @@ class TvShowRenamerIntegrationTest {
             season1.resolve("Breaking Bad S01E09.mkv"));
   }
 
+  @Test
+  void multipleSearchResultsOnTheMovieDb() throws IOException {
+    // Given
+    Path showRoot = testDataDirectory.resolve("Cosmos (2014)");
+    Files.createDirectories(showRoot);
+
+    Path season1 = fakeSeason(showRoot, 1, 10);
+
+    // When
+    tvShowRenamer.run(showRoot, false);
+
+    // Then
+    assertThatTestDataDirectory()
+        .containsExactly(
+            season1.resolve("Cosmos S01E01 Standing Up in the Milky Way.mkv"),
+            season1.resolve("Cosmos S01E02 Some of the Things that Molecules Do.mkv"),
+            season1.resolve("Cosmos S01E03 When Knowledge Conquered Fear.mkv"),
+            season1.resolve("Cosmos S01E04 A Sky Full of Ghosts.mkv"),
+            season1.resolve("Cosmos S01E05 Hiding in the Light.mkv"),
+            season1.resolve("Cosmos S01E06 Deeper, Deeper, Deeper Still.mkv"),
+            season1.resolve("Cosmos S01E07 The Clean Room.mkv"),
+            season1.resolve("Cosmos S01E08 Sisters of the Sun.mkv"),
+            season1.resolve("Cosmos S01E09 The Lost Worlds of Planet Earth.mkv"),
+            season1.resolve("Cosmos S01E10 The Electric Boy.mkv"));
+  }
+
   private Path fakeSeason(Path showRoot, int seasonNum, int numEpisodes) throws IOException {
     Path season = showRoot.resolve("Season %s".formatted(padLength2(seasonNum)));
     Files.createDirectories(season);

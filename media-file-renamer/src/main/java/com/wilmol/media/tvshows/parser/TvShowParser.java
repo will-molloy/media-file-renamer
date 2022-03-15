@@ -37,7 +37,7 @@ public class TvShowParser {
     String showDirName = showDir.getFileName().toString();
     Matcher showDirMatcher = SHOW_DIR_PATTERN.matcher(showDirName);
     checkArgument(
-        showDirMatcher.matches(), "Directory %s doesnt match %s", showDirName, SHOW_DIR_PATTERN);
+        showDirMatcher.matches(), "Directory %s doesnt match: %s", showDirName, SHOW_DIR_PATTERN);
 
     String showName = showDirMatcher.group(1);
     int showYear = Integer.parseInt(showDirMatcher.group(2));
@@ -61,9 +61,9 @@ public class TvShowParser {
                 Matcher seasonDirMatcher = SEASON_DIR_PATTERN.matcher(seasonDirName);
                 checkArgument(
                     seasonDirMatcher.matches(),
-                    "Directory %s doesnt match %s",
+                    "Directory %s doesnt match: %s",
                     seasonDirName,
-                    seasonDirMatcher);
+                    SEASON_DIR_PATTERN);
 
                 int seasonNum = Integer.parseInt(seasonDirMatcher.group(1));
 
@@ -91,6 +91,7 @@ public class TvShowParser {
       // They'll need to name it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
       // TODO more complex logic to handle that?? I.e. extract episodeNum from file name.
       //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.
+      //  The whole point is to rename them automatically. Not make the user name it certain way.
       return IntStream.rangeClosed(1, episodeFiles.size())
           .mapToObj(episodeNum -> new TvShow.Episode(episodeNum, episodeFiles.get(episodeNum - 1)))
           .toList();
