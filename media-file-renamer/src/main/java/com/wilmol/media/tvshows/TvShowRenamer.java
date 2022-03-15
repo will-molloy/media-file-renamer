@@ -7,9 +7,6 @@ import com.google.common.base.Strings;
 import com.wilmol.media.tvshows.enricher.EnrichedTvShow;
 import com.wilmol.media.tvshows.enricher.TvShowEnricher;
 import com.wilmol.media.tvshows.parser.TvShowParser;
-import com.wilmol.media.tvshows.repository.themoviedb.TheMovieDatabase;
-import com.wilmol.media.util.HttpHelper;
-import com.wilmol.media.util.JsonHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,17 +76,11 @@ class TvShowRenamer {
 
   public static void main(String[] args) {
     try {
-      String movieDbApiKey = System.getenv("THE_MOVIE_DB_API_KEY");
-      checkNotNull(movieDbApiKey, "THE_MOVIE_DB_API_KEY not set");
-      TheMovieDatabase theMovieDatabase =
-          new TheMovieDatabase(movieDbApiKey, new HttpHelper(new JsonHelper()));
-
-      TvShowParser tvShowParser = new TvShowParser();
-      TvShowEnricher tvShowEnricher = new TvShowEnricher(theMovieDatabase);
-      TvShowRenamer app = new TvShowRenamer(tvShowParser, tvShowEnricher);
+      TvShowRenamer app = TvShowRenamerFactory.construct();
 
       Path showDir = Path.of("");
       boolean dryRun = true;
+
       app.run(showDir, dryRun);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);

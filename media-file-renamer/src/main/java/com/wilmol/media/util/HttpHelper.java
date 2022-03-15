@@ -2,13 +2,10 @@ package com.wilmol.media.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.Range;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,9 +18,7 @@ public class HttpHelper {
 
   private static final Logger log = LogManager.getLogger();
 
-  private static final Duration TIMEOUT = Duration.ofSeconds(30);
-
-  private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(TIMEOUT).build();
+  private final OkHttpClient httpClient = new OkHttpClient.Builder().build();
 
   private final JsonHelper jsonHelper;
 
@@ -34,30 +29,37 @@ public class HttpHelper {
   /**
    * Sends a GET request and deserialises the JSON response.
    *
-   * @param uri uri to send the GET request to
+   * @param url url to send the GET request to
    * @param type deserialised object type
    * @param <T> deserialised object type
    * @return deserialised response
    */
-  public <T> T get(String uri, Class<T> type) {
-    try {
-      HttpRequest request =
-          HttpRequest.newBuilder().GET().uri(URI.create(uri)).timeout(TIMEOUT).build();
-      HttpResponse<String> response =
-          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+  public <T> T get(String url, Class<T> type) {
+    Request request =
+        new Request.Builder().url(url).header("Accept", "application/json").get().build();
 
-      if (Range.closedOpen(200, 300).contains(response.statusCode())) {
-        String body = response.body();
-        return jsonHelper.deserialise(body, type);
+    String jsonResponseBody = sendRequest(request);
+
+    return jsonHelper.deserialise(jsonResponseBody, type);
+  }
+
+  private String sendRequest(Request request) {
+    log.debug("Sending request: {}", request);
+    try {
+      Response response = httpClient.newCall(request).execute();
+
+      if (response.isSuccessful()) {
+        log.debug("Received successful response: {}", response);
+        String responseBody = response.body().string();
+        log.debug("Received response body: {}", responseBody);
+        return responseBody;
       }
 
-      String msg =
-          "Error sending GET: %s. Received unsuccessful status code: %s"
-              .formatted(uri, response.statusCode());
+      String msg = "Received unsuccessful response: %s".formatted(response);
       log.error(msg);
       throw new RuntimeException(msg);
-    } catch (IOException | InterruptedException e) {
-      String msg = "Error sending GET %s".formatted(uri);
+    } catch (IOException e) {
+      String msg = "Error sending request: %s".formatted(request);
       log.error(msg, e);
       throw new RuntimeException(msg, e);
     }

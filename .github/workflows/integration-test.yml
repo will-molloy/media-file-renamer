@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
+#        os: [ windows-latest ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.4.0
@@ -26,6 +27,8 @@ jobs:
 
       - name: Integration Test
         run: ./gradlew projects clean integrationTest --no-daemon --refresh-dependencies
+        env:
+          THE_MOVIE_DB_API_KEY: ${{ secrets.THE_MOVIE_DB_API_KEY }}
 
       - name: Upload coverage to Codecov (Linux only)
         if: matrix.os == 'ubuntu-latest'

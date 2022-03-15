@@ -1,5 +1,7 @@
 package com.wilmol.media.tvshows.repository;
 
+import java.util.Map;
+
 /**
  * Abstraction to get TV show data.
  *
@@ -8,13 +10,12 @@ package com.wilmol.media.tvshows.repository;
 public interface TvShowRepository {
 
   /**
-   * Get TV show episode name.
+   * Get TV show episode names by season.
    *
    * @param showName show name
-   * @param firstAirDateYear show year
+   * @param showYear show year (first air date)
    * @param season season number
-   * @param episode episode number
-   * @return episode name
+   * @return map of [episode number -> episode name]
    */
-  String getEpisodeName(String showName, int firstAirDateYear, int season, int episode);
+  Map<Integer, String> getEpisodeNames(String showName, int showYear, int season);
 }
