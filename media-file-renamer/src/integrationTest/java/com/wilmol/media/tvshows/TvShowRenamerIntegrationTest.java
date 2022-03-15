@@ -21,13 +21,13 @@ import org.junit.jupiter.api.Test;
  */
 class TvShowRenamerIntegrationTest {
 
-  private Path testData;
+  private Path testDataDirectory;
   private Path fakeMkvFile;
   private TvShowRenamer tvShowRenamer;
 
   @BeforeEach
   void setUp() throws URISyntaxException, IOException {
-    testData = Path.of(this.getClass().getSimpleName());
+    testDataDirectory = Path.of(this.getClass().getSimpleName());
     fakeMkvFile = Path.of(Resources.getResource("fake.mkv").toURI());
     tvShowRenamer = TvShowRenamerFactory.construct();
     tearDown();
@@ -35,13 +35,13 @@ class TvShowRenamerIntegrationTest {
 
   @AfterEach
   void tearDown() throws IOException {
-    FileUtils.deleteDirectory(testData.toFile());
+    FileUtils.deleteDirectory(testDataDirectory.toFile());
   }
 
   @Test
   void everyEpisode() throws IOException {
     // Given
-    Path showRoot = testData.resolve("Breaking Bad (2008)");
+    Path showRoot = testDataDirectory.resolve("Breaking Bad (2008)");
     Files.createDirectories(showRoot);
 
     Path season1 = fakeSeason(showRoot, 1, 7);
@@ -54,7 +54,7 @@ class TvShowRenamerIntegrationTest {
     tvShowRenamer.run(showRoot, false);
 
     // Then
-    assertThatTestData()
+    assertThatTestDataDirectory()
         .containsExactly(
             season1.resolve("Breaking Bad S01E01 Pilot.mkv"),
             season1.resolve("Breaking Bad S01E02 Cat's in the Bag....mkv"),
@@ -123,7 +123,7 @@ class TvShowRenamerIntegrationTest {
   @Test
   void skippedSeasons() throws IOException {
     // Given
-    Path showRoot = testData.resolve("Breaking Bad (2008)");
+    Path showRoot = testDataDirectory.resolve("Breaking Bad (2008)");
     Files.createDirectories(showRoot);
 
     Path season1 = fakeSeason(showRoot, 1, 7);
@@ -133,7 +133,7 @@ class TvShowRenamerIntegrationTest {
     tvShowRenamer.run(showRoot, false);
 
     // Then
-    assertThatTestData()
+    assertThatTestDataDirectory()
         .containsExactly(
             season1.resolve("Breaking Bad S01E01 Pilot.mkv"),
             season1.resolve("Breaking Bad S01E02 Cat's in the Bag....mkv"),
@@ -160,6 +160,52 @@ class TvShowRenamerIntegrationTest {
             season5.resolve("Breaking Bad S05E16 Felina.mkv"));
   }
 
+  @Test
+  void missingEpisodes() throws IOException {
+    // Given
+    Path showRoot = testDataDirectory.resolve("Breaking Bad (2008)");
+    Files.createDirectories(showRoot);
+
+    Path season1 = fakeSeason(showRoot, 1, 5);
+
+    // When
+    tvShowRenamer.run(showRoot, false);
+
+    // Then
+    assertThatTestDataDirectory()
+        .containsExactly(
+            season1.resolve("Breaking Bad S01E01 Pilot.mkv"),
+            season1.resolve("Breaking Bad S01E02 Cat's in the Bag....mkv"),
+            season1.resolve("Breaking Bad S01E03 ...And the Bag's in the River.mkv"),
+            season1.resolve("Breaking Bad S01E04 Cancer Man.mkv"),
+            season1.resolve("Breaking Bad S01E05 Gray Matter.mkv"));
+  }
+
+  @Test
+  void extraEpisodes() throws IOException {
+    // Given
+    Path showRoot = testDataDirectory.resolve("Breaking Bad (2008)");
+    Files.createDirectories(showRoot);
+
+    Path season1 = fakeSeason(showRoot, 1, 9);
+
+    // When
+    tvShowRenamer.run(showRoot, false);
+
+    // Then
+    assertThatTestDataDirectory()
+        .containsExactly(
+            season1.resolve("Breaking Bad S01E01 Pilot.mkv"),
+            season1.resolve("Breaking Bad S01E02 Cat's in the Bag....mkv"),
+            season1.resolve("Breaking Bad S01E03 ...And the Bag's in the River.mkv"),
+            season1.resolve("Breaking Bad S01E04 Cancer Man.mkv"),
+            season1.resolve("Breaking Bad S01E05 Gray Matter.mkv"),
+            season1.resolve("Breaking Bad S01E06 Crazy Handful of Nothin'.mkv"),
+            season1.resolve("Breaking Bad S01E07 A No-Rough-Stuff-Type Deal.mkv"),
+            season1.resolve("Breaking Bad S01E08.mkv"),
+            season1.resolve("Breaking Bad S01E09.mkv"));
+  }
+
   private Path fakeSeason(Path showRoot, int seasonNum, int numEpisodes) throws IOException {
     Path season = showRoot.resolve("Season %s".formatted(padLength2(seasonNum)));
     Files.createDirectories(season);
@@ -175,7 +221,7 @@ class TvShowRenamerIntegrationTest {
     return Strings.padStart(String.valueOf(i), 2, '0');
   }
 
-  private StreamSubject assertThatTestData() throws IOException {
-    return assertThat(Files.walk(testData).filter(Files::isRegularFile));
+  private StreamSubject assertThatTestDataDirectory() throws IOException {
+    return assertThat(Files.walk(testDataDirectory).filter(Files::isRegularFile));
   }
 }

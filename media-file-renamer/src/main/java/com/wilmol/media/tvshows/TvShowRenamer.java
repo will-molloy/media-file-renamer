@@ -47,12 +47,14 @@ class TvShowRenamer {
         String fileSuffix = fileName.substring(fileName.lastIndexOf("."));
 
         String newFileName =
-            "%s S%sE%s %s%s"
+            "%s S%sE%s%s%s"
                 .formatted(
                     tvShow.showName(),
                     padLength2(season.seasonNum()),
                     padLength2(episode.episodeNum()),
-                    ILLEGAL_PATH_CHARS.matcher(episode.episodeName()).replaceAll(""),
+                    ILLEGAL_PATH_CHARS
+                        .matcher(episode.episodeName().map(s -> " %s".formatted(s)).orElse(""))
+                        .replaceAll(""),
                     fileSuffix);
         Path newPath = episode.file().resolveSibling(newFileName);
 

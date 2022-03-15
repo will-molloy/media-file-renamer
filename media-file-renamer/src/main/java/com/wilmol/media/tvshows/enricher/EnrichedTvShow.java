@@ -1,10 +1,12 @@
 package com.wilmol.media.tvshows.enricher;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import org.apache.logging.log4j.util.Strings;
 
 /**
@@ -45,11 +47,11 @@ public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason>
    * @param file path to episode file (video)
    * @param episodeName episode name
    */
-  public record EnrichedEpisode(int episodeNum, Path file, String episodeName) {
+  public record EnrichedEpisode(int episodeNum, Path file, Optional<String> episodeName) {
     public EnrichedEpisode {
       checkArgument(episodeNum > 0, "episodeNum (%s) <= 0", episodeNum);
       checkArgument(Files.isRegularFile(file), "file (%s) is not a regular file", file);
-      checkArgument(Strings.isNotBlank(episodeName), "blank episodeName");
+      checkNotNull(episodeName, "null episodeName optional");
     }
   }
 }

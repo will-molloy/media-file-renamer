@@ -6,6 +6,7 @@ import com.wilmol.media.tvshows.parser.TvShow;
 import com.wilmol.media.tvshows.repository.TvShowRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -69,7 +70,17 @@ public class TvShowEnricher {
     return season.episodes().stream()
         .map(
             episode -> {
-              String episodeName = episodeNames.get(episode.episodeNum());
+              Optional<String> episodeName =
+                  Optional.ofNullable(episodeNames.get(episode.episodeNum()));
+              if (episodeName.isEmpty()) {
+                log.warn(
+                    "{} did not find episode name for {} ({}) Season {} Episode {}",
+                    tvShowRepository.getClass().getSimpleName(),
+                    tvShow.showName(),
+                    tvShow.showYear(),
+                    season.seasonNum(),
+                    episode.episodeNum());
+              }
               return new EnrichedTvShow.EnrichedEpisode(
                   episode.episodeNum(), episode.file(), episodeName);
             })
