@@ -39,7 +39,7 @@ class TvShowRenamerIntegrationTest {
   }
 
   @Test
-  void breakingBad() throws IOException {
+  void everyEpisode() throws IOException {
     // Given
     Path showRoot = testData.resolve("Breaking Bad (2008)");
     Files.createDirectories(showRoot);
@@ -102,6 +102,46 @@ class TvShowRenamerIntegrationTest {
             season4.resolve("Breaking Bad S04E11 Crawl Space.mkv"),
             season4.resolve("Breaking Bad S04E12 End Times.mkv"),
             season4.resolve("Breaking Bad S04E13 Face Off.mkv"),
+            season5.resolve("Breaking Bad S05E01 Live Free or Die.mkv"),
+            season5.resolve("Breaking Bad S05E02 Madrigal.mkv"),
+            season5.resolve("Breaking Bad S05E03 Hazard Pay.mkv"),
+            season5.resolve("Breaking Bad S05E04 Fifty-One.mkv"),
+            season5.resolve("Breaking Bad S05E05 Dead Freight.mkv"),
+            season5.resolve("Breaking Bad S05E06 Buyout.mkv"),
+            season5.resolve("Breaking Bad S05E07 Say My Name.mkv"),
+            season5.resolve("Breaking Bad S05E08 Gliding Over All.mkv"),
+            season5.resolve("Breaking Bad S05E09 Blood Money.mkv"),
+            season5.resolve("Breaking Bad S05E10 Buried.mkv"),
+            season5.resolve("Breaking Bad S05E11 Confessions.mkv"),
+            season5.resolve("Breaking Bad S05E12 Rabid Dog.mkv"),
+            season5.resolve("Breaking Bad S05E13 To'hajiilee.mkv"),
+            season5.resolve("Breaking Bad S05E14 Ozymandias.mkv"),
+            season5.resolve("Breaking Bad S05E15 Granite State.mkv"),
+            season5.resolve("Breaking Bad S05E16 Felina.mkv"));
+  }
+
+  @Test
+  void skippedSeasons() throws IOException {
+    // Given
+    Path showRoot = testData.resolve("Breaking Bad (2008)");
+    Files.createDirectories(showRoot);
+
+    Path season1 = fakeSeason(showRoot, 1, 7);
+    Path season5 = fakeSeason(showRoot, 5, 16);
+
+    // When
+    tvShowRenamer.run(showRoot, false);
+
+    // Then
+    assertThatTestData()
+        .containsExactly(
+            season1.resolve("Breaking Bad S01E01 Pilot.mkv"),
+            season1.resolve("Breaking Bad S01E02 Cat's in the Bag....mkv"),
+            season1.resolve("Breaking Bad S01E03 ...And the Bag's in the River.mkv"),
+            season1.resolve("Breaking Bad S01E04 Cancer Man.mkv"),
+            season1.resolve("Breaking Bad S01E05 Gray Matter.mkv"),
+            season1.resolve("Breaking Bad S01E06 Crazy Handful of Nothin'.mkv"),
+            season1.resolve("Breaking Bad S01E07 A No-Rough-Stuff-Type Deal.mkv"),
             season5.resolve("Breaking Bad S05E01 Live Free or Die.mkv"),
             season5.resolve("Breaking Bad S05E02 Madrigal.mkv"),
             season5.resolve("Breaking Bad S05E03 Hazard Pay.mkv"),

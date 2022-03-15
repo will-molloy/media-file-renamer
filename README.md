@@ -20,7 +20,8 @@ Quickly renaming Movies, Tv Shows, etc.
 ```
 ./gradlew spotlessApply build integrationTest
 ```
-_`integrationTest` hits the The Movie Database API_
+
+_`integrationTest` hits The Movie Database API_
 
 ### TV Show Renaming
 
@@ -28,11 +29,9 @@ _`integrationTest` hits the The Movie Database API_
     - Root directory must be named like: `<Show Name> (<Show Year>)`
     - Then subdirectories of seasons:
         - Must be named like: `Season xx`
-        - It's assumed these subdirectories are in order, starting with `Season 01`
-            - i.e. name it like `Season 09` otherwise `Season 10` comes before `Season 9`
     - Then episode files:
         - Can be named anyway you want (they're going to be renamed!)
-        - However, it's assumed they're in order, starting with the first episode, and no missing episodes
+        - However, it's assumed they're contiguous and in order, starting with the first episode
             - i.e. name it like `Ep 09` otherwise `Ep 10` comes before `Ep 9`
     - For example:
       ```
@@ -78,4 +77,4 @@ _`integrationTest` hits the The Movie Database API_
              └── Breaking Bad S03E02 Caballo sin Nombre.mkv
              ...
       ```
-      - see [integration test](media-file-renamer/src/integrationTest/java/com/wilmol/media/tvshows/TvShowRenamerIntegrationTest.java) for bigger example
+      - see [integration test](media-file-renamer/src/integrationTest/java/com/wilmol/media/tvshows/TvShowRenamerIntegrationTest.java) for more complete examples

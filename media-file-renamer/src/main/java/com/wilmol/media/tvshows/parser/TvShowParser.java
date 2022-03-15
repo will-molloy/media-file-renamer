@@ -23,7 +23,7 @@ public class TvShowParser {
   private static final Logger log = LogManager.getLogger();
 
   private static final Pattern SHOW_DIR_PATTERN = Pattern.compile("(.+?) [(](\\d{4})[)]");
-  private static final Pattern SEASON_DIR_PATTERN = Pattern.compile("Season \\d{2}");
+  private static final Pattern SEASON_DIR_PATTERN = Pattern.compile("Season (\\d{2})");
 
   /**
    * Parse a {@link TvShow}.
@@ -50,28 +50,27 @@ public class TvShowParser {
 
   private List<TvShow.Season> parseSeasons(Path showDir) {
     try {
-      List<Path> seasonDirs = Files.list(showDir).sorted().toList();
+      List<Path> seasonDirs = Files.list(showDir).toList();
       log.info("Detected {} seasons", seasonDirs.size());
-      for (Path seasonDir : seasonDirs) {
-        checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
-        String seasonDirName = seasonDir.getFileName().toString();
-        Matcher seasonDirMatcher = SEASON_DIR_PATTERN.matcher(seasonDirName);
-        checkArgument(
-            seasonDirMatcher.matches(),
-            "Directory %s doesnt match %s",
-            seasonDirName,
-            seasonDirMatcher);
-      }
 
-      // assumed 'seasonDirs' are in sorted order starting with 'Season 01'
-      // They'll need to name it like 'Season 09' otherwise 'Season 10' comes before 'Season 9'
-      // TODO more complex logic to handle that??
-      return IntStream.rangeClosed(1, seasonDirs.size())
-          .mapToObj(
-              seasonNum -> {
-                List<TvShow.Episode> episodes = parseEpisodes(seasonDirs.get(seasonNum - 1));
-                log.info("Detected {} episodes for season {}", episodes.size(), seasonNum);
-                return new TvShow.Season(seasonNum, seasonDirs.get(seasonNum - 1), episodes);
+      return seasonDirs.stream()
+          .map(
+              seasonDir -> {
+                checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
+                String seasonDirName = seasonDir.getFileName().toString();
+                Matcher seasonDirMatcher = SEASON_DIR_PATTERN.matcher(seasonDirName);
+                checkArgument(
+                    seasonDirMatcher.matches(),
+                    "Directory %s doesnt match %s",
+                    seasonDirName,
+                    seasonDirMatcher);
+
+                int seasonNum = Integer.parseInt(seasonDirMatcher.group(1));
+
+                List<TvShow.Episode> episodes = parseEpisodes(seasonDir);
+                log.info("Detected season {} with {} episodes", seasonNum, episodes.size());
+
+                return new TvShow.Season(seasonNum, seasonDir, episodes);
               })
           .toList();
     } catch (IOException e) {
@@ -88,9 +87,9 @@ public class TvShowParser {
         checkArgument(Files.isRegularFile(episodeFile), "%s is not a regular file", episodeFile);
       }
 
-      // similarly, assumed 'episodeFiles' are in sorted order starting with the first episode
+      // assumed 'episodeFiles' are contiguous in sorted order starting with the first episode
       // They'll need to name it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
-      // TODO more complex logic to handle that??
+      // TODO more complex logic to handle that?? I.e. extract episodeNum from file name.
       //  For episodes it can be named many ways, like 101, 102 or Ep 1, Ep 2. Too much conditions.
       return IntStream.rangeClosed(1, episodeFiles.size())
           .mapToObj(episodeNum -> new TvShow.Episode(episodeNum, episodeFiles.get(episodeNum - 1)))
