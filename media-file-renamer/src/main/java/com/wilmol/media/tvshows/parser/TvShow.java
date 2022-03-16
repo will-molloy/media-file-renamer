@@ -31,7 +31,7 @@ public record TvShow(String showName, int showYear, List<Season> seasons) {
    */
   public record Season(int seasonNum, Path directory, List<Episode> episodes) {
     public Season {
-      checkArgument(seasonNum > 0, "seasonNum (%s) <= 0", seasonNum);
+      checkArgument(seasonNum >= 0, "seasonNum (%s) < 0", seasonNum);
       checkArgument(Files.isDirectory(directory), "directory (%s) is not a directory", directory);
       checkArgument(!episodes.isEmpty(), "empty episodes list");
     }

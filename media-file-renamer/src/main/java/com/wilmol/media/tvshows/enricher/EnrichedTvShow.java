@@ -34,7 +34,7 @@ public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason>
    */
   public record EnrichedSeason(int seasonNum, Path directory, List<EnrichedEpisode> episodes) {
     public EnrichedSeason {
-      checkArgument(seasonNum > 0, "seasonNum (%s) <= 0", seasonNum);
+      checkArgument(seasonNum >= 0, "seasonNum (%s) < 0", seasonNum);
       checkArgument(Files.isDirectory(directory), "directory (%s) is not a directory", directory);
       checkArgument(!episodes.isEmpty(), "empty episodes list");
     }

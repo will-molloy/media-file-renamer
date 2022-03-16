@@ -111,7 +111,7 @@ public class TheMovieDatabase implements TvShowRepository {
     record Episode(int id, int season_number, int episode_number, String name, String overview) {
       Episode {
         checkArgument(id > 0, "id (%s) <= 0", id);
-        checkArgument(season_number > 0, "season_number (%s) <= 0", season_number);
+        checkArgument(season_number >= 0, "season_number (%s) < 0", season_number);
         checkArgument(episode_number > 0, "episode_number (%s) <= 0", episode_number);
         checkArgument(Strings.isNotBlank(name), "blank name");
         checkArgument(Strings.isNotBlank(overview), "blank overview");

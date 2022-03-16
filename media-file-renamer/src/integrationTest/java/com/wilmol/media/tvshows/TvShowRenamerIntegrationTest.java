@@ -232,6 +232,35 @@ class TvShowRenamerIntegrationTest {
             season1.resolve("Cosmos S01E10 The Electric Boy.mkv"));
   }
 
+  @Test
+  void season00ForBonusOrSpecialEpisodes() throws IOException {
+    // Given
+    Path showRoot = testDataDirectory.resolve("Sherlock (2010)");
+    Files.createDirectories(showRoot);
+
+    Path season0 = fakeSeason(showRoot, 0, 9);
+    Path season1 = fakeSeason(showRoot, 1, 3);
+
+    // When
+    tvShowRenamer.run(showRoot, false);
+
+    // Then
+    assertThatTestDataDirectory()
+        .containsExactly(
+            season0.resolve("Sherlock S00E01 Unaired Pilot.mkv"),
+            season0.resolve("Sherlock S00E02 Unlocking Sherlock.mkv"),
+            season0.resolve("Sherlock S00E03 Sherlock Uncovered.mkv"),
+            season0.resolve("Sherlock S00E04 Many Happy Returns.mkv"),
+            season0.resolve("Sherlock S00E05 Unlocking Sherlock.mkv"),
+            season0.resolve("Sherlock S00E06 Sherlock Uncovered The Return.mkv"),
+            season0.resolve("Sherlock S00E07 Sherlock Uncovered The Women.mkv"),
+            season0.resolve("Sherlock S00E08 Sherlock Uncovered The Villains.mkv"),
+            season0.resolve("Sherlock S00E09 The Abominable Bride.mkv"),
+            season1.resolve("Sherlock S01E01 A Study in Pink.mkv"),
+            season1.resolve("Sherlock S01E02 The Blind Banker.mkv"),
+            season1.resolve("Sherlock S01E03 The Great Game.mkv"));
+  }
+
   private Path fakeSeason(Path showRoot, int seasonNum, int numEpisodes) throws IOException {
     Path season = showRoot.resolve("Season %s".formatted(padLength2(seasonNum)));
     Files.createDirectories(season);
