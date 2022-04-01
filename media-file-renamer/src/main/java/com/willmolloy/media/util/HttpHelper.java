@@ -1,4 +1,4 @@
-package com.wilmol.media.util;
+package com.willmolloy.media.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * HttpClient abstraction.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public class HttpHelper {
 

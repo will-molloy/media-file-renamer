@@ -1,4 +1,4 @@
-package com.wilmol.media.tvshows;
+package com.willmolloy.media.tvshows;
 
 import static com.google.common.truth.Truth8.assertThat;
 
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 /**
  * TvShowRenamerIntegrationTest.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 class TvShowRenamerIntegrationTest {
 

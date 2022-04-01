@@ -1,4 +1,4 @@
-package com.wilmol.media.tvshows.parser;
+package com.willmolloy.media.tvshows.parser;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Responsible for parsing TV show directory into Java object.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public class TvShowParser {
 

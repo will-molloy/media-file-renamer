@@ -1,4 +1,4 @@
-package com.wilmol.media.tvshows.repository.themoviedb;
+package com.willmolloy.media.tvshows.repository.themoviedb;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -8,8 +8,8 @@ import static java.util.stream.Collectors.toUnmodifiableMap;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.wilmol.media.tvshows.repository.TvShowRepository;
-import com.wilmol.media.util.HttpHelper;
+import com.willmolloy.media.tvshows.repository.TvShowRepository;
+import com.willmolloy.media.util.HttpHelper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -23,7 +23,7 @@ import org.apache.logging.log4j.util.Strings;
  * Client for calling The Movie Database API (for TV Show info).
  *
  * @see <a href=https://developers.themoviedb.org>https://developers.themoviedb.org</a>
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public class TheMovieDatabase implements TvShowRepository {
 

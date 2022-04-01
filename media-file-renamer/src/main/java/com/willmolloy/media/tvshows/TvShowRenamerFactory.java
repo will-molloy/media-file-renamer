@@ -1,17 +1,17 @@
-package com.wilmol.media.tvshows;
+package com.willmolloy.media.tvshows;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.wilmol.media.tvshows.enricher.TvShowEnricher;
-import com.wilmol.media.tvshows.parser.TvShowParser;
-import com.wilmol.media.tvshows.repository.themoviedb.TheMovieDatabase;
-import com.wilmol.media.util.HttpHelper;
-import com.wilmol.media.util.JsonHelper;
+import com.willmolloy.media.tvshows.enricher.TvShowEnricher;
+import com.willmolloy.media.tvshows.parser.TvShowParser;
+import com.willmolloy.media.tvshows.repository.themoviedb.TheMovieDatabase;
+import com.willmolloy.media.util.HttpHelper;
+import com.willmolloy.media.util.JsonHelper;
 
 /**
  * Factory for constructing {@link TvShowRenamer}.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public final class TvShowRenamerFactory {
 

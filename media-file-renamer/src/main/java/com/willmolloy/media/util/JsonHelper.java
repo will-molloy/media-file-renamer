@@ -1,4 +1,4 @@
-package com.wilmol.media.util;
+package com.willmolloy.media.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * JSON abstraction.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public class JsonHelper {
 
