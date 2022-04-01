@@ -1,8 +1,8 @@
 # media-file-renamer
 
-[![build](https://github.com/wilmol/media-file-renamer/workflows/build/badge.svg?branch=main&event=push)](https://github.com/wilmol/media-file-renamer/actions?query=workflow%3Abuild)
-[![integration-test](https://github.com/wilmol/media-file-renamer/workflows/integration-test/badge.svg?branch=main&event=push)](https://github.com/wilmol/media-file-renamer/actions?query=workflow%3Aintegration-test)
-[![codecov](https://codecov.io/gh/wilmol/media-file-renamer/branch/main/graph/badge.svg)](https://codecov.io/gh/wilmol/media-file-renamer)
+[![build](https://github.com/will-molloy/media-file-renamer/workflows/build/badge.svg?branch=main&event=push)](https://github.com/will-molloy/media-file-renamer/actions?query=workflow%3Abuild)
+[![integration-test](https://github.com/will-molloy/media-file-renamer/workflows/integration-test/badge.svg?branch=main&event=push)](https://github.com/will-molloy/media-file-renamer/actions?query=workflow%3Aintegration-test)
+[![codecov](https://codecov.io/gh/will-molloy/media-file-renamer/branch/main/graph/badge.svg)](https://codecov.io/gh/will-molloy/media-file-renamer)
 
 Quickly renaming Movies, Tv Shows, etc.
 
@@ -52,7 +52,7 @@ _`integrationTest` hits The Movie Database API_
       ```
 
 
-2. Run [`TvShowRenamer.main`](media-file-renamer/src/main/java/com/wilmol/media/tvshows/TvShowRenamer.java)
+2. Run [`TvShowRenamer.main`](media-file-renamer/src/main/java/com/willmolloy/media/tvshows/TvShowRenamer.java)
     - Point `showDir` at root directory of your TV show
     - Set `dryRun`, recommend `true` at first and check the output
 
@@ -77,4 +77,4 @@ _`integrationTest` hits The Movie Database API_
              └── Breaking Bad S03E02 Caballo sin Nombre.mkv
              ...
       ```
-      - see [integration test](media-file-renamer/src/integrationTest/java/com/wilmol/media/tvshows/TvShowRenamerIntegrationTest.java) for more complete examples
+      - see [integration test](media-file-renamer/src/integrationTest/java/com/willmolloy/media/tvshows/TvShowRenamerIntegrationTest.java) for more complete examples

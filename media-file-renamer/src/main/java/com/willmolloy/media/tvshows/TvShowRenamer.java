@@ -1,12 +1,12 @@
-package com.wilmol.media.tvshows;
+package com.willmolloy.media.tvshows;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-import com.wilmol.media.tvshows.enricher.EnrichedTvShow;
-import com.wilmol.media.tvshows.enricher.TvShowEnricher;
-import com.wilmol.media.tvshows.parser.TvShowParser;
+import com.willmolloy.media.tvshows.enricher.EnrichedTvShow;
+import com.willmolloy.media.tvshows.enricher.TvShowEnricher;
+import com.willmolloy.media.tvshows.parser.TvShowParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Starting point for renaming TV shows.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 class TvShowRenamer {
 

@@ -1,9 +1,9 @@
-package com.wilmol.media.tvshows.enricher;
+package com.willmolloy.media.tvshows.enricher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.wilmol.media.tvshows.parser.TvShow;
-import com.wilmol.media.tvshows.repository.TvShowRepository;
+import com.willmolloy.media.tvshows.parser.TvShow;
+import com.willmolloy.media.tvshows.repository.TvShowRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Responsible for enriching TV show data.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public class TvShowEnricher {
 

@@ -1,11 +1,11 @@
-package com.wilmol.media.tvshows.repository;
+package com.willmolloy.media.tvshows.repository;
 
 import java.util.Map;
 
 /**
  * Abstraction to get TV show data.
  *
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
 public interface TvShowRepository {
 

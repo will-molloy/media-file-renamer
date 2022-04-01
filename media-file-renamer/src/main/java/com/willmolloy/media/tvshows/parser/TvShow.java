@@ -1,39 +1,36 @@
-package com.wilmol.media.tvshows.enricher;
+package com.willmolloy.media.tvshows.parser;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import org.apache.logging.log4j.util.Strings;
 
 /**
- * TV show with data enriched.
+ * Parsed TV show.
  *
  * @param showName show name
  * @param showYear show year (first air date)
  * @param seasons seasons
- * @author <a href=https://wilmol.com>Will Molloy</a>
+ * @author <a href=https://willmolloy.com>Will Molloy</a>
  */
-// TODO duplicate with TvShow class. Anyway to inherit code from another record?
-public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason> seasons) {
-  public EnrichedTvShow {
+public record TvShow(String showName, int showYear, List<Season> seasons) {
+  public TvShow {
     checkArgument(Strings.isNotBlank(showName), "blank showName");
     checkArgument(showYear > 0, "showYear (%s) <= 0", showYear);
     checkArgument(!seasons.isEmpty(), "empty seasons list");
   }
 
   /**
-   * Enriched TV show season.
+   * TV show season.
    *
    * @param seasonNum season number
    * @param directory path to season directory
    * @param episodes episodes
    */
-  public record EnrichedSeason(int seasonNum, Path directory, List<EnrichedEpisode> episodes) {
-    public EnrichedSeason {
+  public record Season(int seasonNum, Path directory, List<Episode> episodes) {
+    public Season {
       checkArgument(seasonNum >= 0, "seasonNum (%s) < 0", seasonNum);
       checkArgument(Files.isDirectory(directory), "directory (%s) is not a directory", directory);
       checkArgument(!episodes.isEmpty(), "empty episodes list");
@@ -41,17 +38,15 @@ public record EnrichedTvShow(String showName, int showYear, List<EnrichedSeason>
   }
 
   /**
-   * Enriched TV show episode.
+   * TV show episode.
    *
    * @param episodeNum episode number
    * @param file path to episode file (video)
-   * @param episodeName episode name
    */
-  public record EnrichedEpisode(int episodeNum, Path file, Optional<String> episodeName) {
-    public EnrichedEpisode {
+  public record Episode(int episodeNum, Path file) {
+    public Episode {
       checkArgument(episodeNum > 0, "episodeNum (%s) <= 0", episodeNum);
       checkArgument(Files.isRegularFile(file), "file (%s) is not a regular file", file);
-      checkNotNull(episodeName, "null episodeName optional");
     }
   }
 }
