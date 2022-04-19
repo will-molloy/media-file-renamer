@@ -114,7 +114,8 @@ public class TheMovieDatabase implements TvShowRepository {
         checkArgument(season_number >= 0, "season_number (%s) < 0", season_number);
         checkArgument(episode_number > 0, "episode_number (%s) <= 0", episode_number);
         checkArgument(Strings.isNotBlank(name), "blank name");
-        checkArgument(Strings.isNotBlank(overview), "blank overview");
+        // overview sometimes null, but unused in this app
+        //        checkArgument(Strings.isNotBlank(overview), "blank overview");
       }
     }
   }

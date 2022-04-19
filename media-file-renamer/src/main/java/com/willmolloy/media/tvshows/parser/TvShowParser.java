@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -24,6 +25,7 @@ public class TvShowParser {
 
   private static final Pattern SHOW_DIR_PATTERN = Pattern.compile("(.+?) [(](\\d{4})[)]");
   private static final Pattern SEASON_DIR_PATTERN = Pattern.compile("Season (\\d{2})");
+  private static final Set<String> VIDEO_FILE_EXTENSIONS = Set.of(".mp4", ".mkv", ".avi");
 
   /**
    * Parse a {@link TvShow}.
@@ -37,7 +39,7 @@ public class TvShowParser {
     String showDirName = showDir.getFileName().toString();
     Matcher showDirMatcher = SHOW_DIR_PATTERN.matcher(showDirName);
     checkArgument(
-        showDirMatcher.matches(), "Directory %s doesnt match: %s", showDirName, SHOW_DIR_PATTERN);
+        showDirMatcher.matches(), "Directory %s doesn't match: %s", showDirName, SHOW_DIR_PATTERN);
 
     String showName = showDirMatcher.group(1);
     int showYear = Integer.parseInt(showDirMatcher.group(2));
@@ -50,13 +52,12 @@ public class TvShowParser {
 
   private List<TvShow.Season> parseSeasons(Path showDir) {
     try {
-      List<Path> seasonDirs = Files.list(showDir).toList();
+      List<Path> seasonDirs = Files.list(showDir).filter(Files::isDirectory).toList();
       log.info("Detected {} seasons", seasonDirs.size());
 
       return seasonDirs.stream()
           .map(
               seasonDir -> {
-                checkArgument(Files.isDirectory(seasonDir), "%s is not a directory", seasonDir);
                 String seasonDirName = seasonDir.getFileName().toString();
                 Matcher seasonDirMatcher = SEASON_DIR_PATTERN.matcher(seasonDirName);
                 checkArgument(
@@ -82,10 +83,15 @@ public class TvShowParser {
 
   private List<TvShow.Episode> parseEpisodes(Path seasonDir) {
     try {
-      List<Path> episodeFiles = Files.list(seasonDir).sorted().toList();
-      for (Path episodeFile : episodeFiles) {
-        checkArgument(Files.isRegularFile(episodeFile), "%s is not a regular file", episodeFile);
-      }
+      List<Path> episodeFiles =
+          Files.list(seasonDir)
+              .filter(Files::isRegularFile)
+              .filter(
+                  file ->
+                      VIDEO_FILE_EXTENSIONS.stream()
+                          .anyMatch(extension -> file.getFileName().toString().endsWith(extension)))
+              .sorted()
+              .toList();
 
       // assumed 'episodeFiles' are contiguous in sorted order starting with the first episode
       // They'll need to name it like 'Episode 09' otherwise 'Episode 10' comes before 'Episode 9'
