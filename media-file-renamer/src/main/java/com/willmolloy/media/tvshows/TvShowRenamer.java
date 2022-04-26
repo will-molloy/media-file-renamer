@@ -58,9 +58,11 @@ class TvShowRenamer {
                     fileSuffix);
         Path newPath = episode.file().resolveSibling(newFileName);
 
-        log.info("Renaming: {} -> {}", episode.file(), newPath);
-        if (!dryRun) {
-          Files.move(episode.file(), newPath);
+        if (!episode.file().equals(newPath)) {
+          log.info("Renaming: {} -> {}", episode.file(), newPath);
+          if (!dryRun) {
+            Files.move(episode.file(), newPath);
+          }
         }
       }
     }
