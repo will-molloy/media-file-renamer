@@ -1,5 +1,5 @@
-String showDir = project.getProperty("showDir")
-boolean dryRun = project.getProperty("dryRun")
+String showDir = project.getProperties().getOrDefault("showDir", "")
+boolean dryRun = project.getProperties().getOrDefault("dryRun", true)
 
 task run(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
