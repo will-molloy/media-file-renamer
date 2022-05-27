@@ -53,7 +53,7 @@ public class TvShowParser {
   private List<TvShow.Season> parseSeasons(Path showDir) {
     try {
       List<Path> seasonDirs = Files.list(showDir).filter(Files::isDirectory).toList();
-      log.info("Detected {} seasons", seasonDirs.size());
+      log.info("Detected {} season(s)", seasonDirs.size());
 
       return seasonDirs.stream()
           .map(
@@ -69,7 +69,7 @@ public class TvShowParser {
                 int seasonNum = Integer.parseInt(seasonDirMatcher.group(1));
 
                 List<TvShow.Episode> episodes = parseEpisodes(seasonDir);
-                log.info("Detected season {} with {} episodes", seasonNum, episodes.size());
+                log.info("Detected season {} with {} episode(s)", seasonNum, episodes.size());
 
                 return new TvShow.Season(seasonNum, seasonDir, episodes);
               })

@@ -23,13 +23,11 @@ class TvShowRenamerIntegrationTest {
 
   private Path testDataDirectory;
   private Path fakeMkvFile;
-  private TvShowRenamer tvShowRenamer;
 
   @BeforeEach
   void setUp() throws URISyntaxException, IOException {
     testDataDirectory = Path.of(this.getClass().getSimpleName());
     fakeMkvFile = Path.of(Resources.getResource("fake.mkv").toURI());
-    tvShowRenamer = TvShowRenamerFactory.construct();
     tearDown();
   }
 
@@ -51,7 +49,7 @@ class TvShowRenamerIntegrationTest {
     Path season5 = fakeSeason(showRoot, 5, 16);
 
     // When
-    tvShowRenamer.run(showRoot, false);
+    runApp(showRoot);
 
     // Then
     assertThatTestDataDirectory()
@@ -130,7 +128,7 @@ class TvShowRenamerIntegrationTest {
     Path season5 = fakeSeason(showRoot, 5, 16);
 
     // When
-    tvShowRenamer.run(showRoot, false);
+    runApp(showRoot);
 
     // Then
     assertThatTestDataDirectory()
@@ -169,7 +167,7 @@ class TvShowRenamerIntegrationTest {
     Path season1 = fakeSeason(showRoot, 1, 5);
 
     // When
-    tvShowRenamer.run(showRoot, false);
+    runApp(showRoot);
 
     // Then
     assertThatTestDataDirectory()
@@ -190,7 +188,7 @@ class TvShowRenamerIntegrationTest {
     Path season1 = fakeSeason(showRoot, 1, 9);
 
     // When
-    tvShowRenamer.run(showRoot, false);
+    runApp(showRoot);
 
     // Then
     assertThatTestDataDirectory()
@@ -215,7 +213,7 @@ class TvShowRenamerIntegrationTest {
     Path season1 = fakeSeason(showRoot, 1, 10);
 
     // When
-    tvShowRenamer.run(showRoot, false);
+    runApp(showRoot);
 
     // Then
     assertThatTestDataDirectory()
@@ -242,7 +240,7 @@ class TvShowRenamerIntegrationTest {
     Path season1 = fakeSeason(showRoot, 1, 3);
 
     // When
-    tvShowRenamer.run(showRoot, false);
+    runApp(showRoot);
 
     // Then
     assertThatTestDataDirectory()
@@ -278,5 +276,9 @@ class TvShowRenamerIntegrationTest {
 
   private StreamSubject assertThatTestDataDirectory() throws IOException {
     return assertThat(Files.walk(testDataDirectory).filter(Files::isRegularFile));
+  }
+
+  private void runApp(Path showDir) {
+    TvShowRenamer.main(showDir.toString(), "false");
   }
 }
