@@ -54,7 +54,7 @@ _`integrationTest` hits The Movie Database API_
 
 2. Run via [Gradle task](media-file-renamer/build.gradle):
    ```bash
-   ./gradlew build :media-file-renamer:run -PshowDir="" -PdryRun=true|false && pause || pause
+   ./gradlew :media-file-renamer:run -PshowDir="" -PdryRun=true|false
    ```
     - Point `showDir` at root directory of your TV show
     - Set `dryRun`, recommend `true` at first and check the output
