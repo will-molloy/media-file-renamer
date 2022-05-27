@@ -37,8 +37,9 @@ class TvShowRenamer {
     this.tvShowEnricher = checkNotNull(tvShowEnricher);
   }
 
-  void run(Path showDir, boolean dryRun) throws IOException {
+  private void run(Path showDir, boolean dryRun) throws IOException {
     EnrichedTvShow tvShow = tvShowEnricher.enrich(tvShowParser.parse(showDir));
+    int renameCount = 0;
 
     for (EnrichedTvShow.EnrichedSeason season : tvShow.seasons()) {
       log.info("Processing season {} ({} episodes)", season.seasonNum(), season.episodes().size());
@@ -61,12 +62,15 @@ class TvShowRenamer {
 
         if (!episode.file().equals(newPath)) {
           log.info("Renaming: {} -> {}", episode.file(), newPath);
+          renameCount++;
           if (!dryRun) {
             Files.move(episode.file(), newPath);
           }
         }
       }
     }
+
+    log.info("Renamed {} file(s)", renameCount);
 
     if (dryRun) {
       log.info("Dry run. Please check the above output");
@@ -98,7 +102,7 @@ class TvShowRenamer {
     }
   }
 
-  public static TvShowRenamer construct() {
+  private static TvShowRenamer construct() {
     String movieDbApiKey = System.getenv("THE_MOVIE_DB_API_KEY");
     checkNotNull(movieDbApiKey, "THE_MOVIE_DB_API_KEY not set");
     TheMovieDatabase theMovieDatabase =

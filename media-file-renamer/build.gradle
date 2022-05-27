@@ -1,0 +1,8 @@
+String showDir = project.getProperty("showDir")
+boolean dryRun = project.getProperty("dryRun")
+
+task run(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'com.willmolloy.media.tvshows.TvShowRenamer'
+  args = [showDir, dryRun]
+}

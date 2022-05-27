@@ -52,7 +52,10 @@ _`integrationTest` hits The Movie Database API_
       ```
 
 
-2. Run [`TvShowRenamer.main`](media-file-renamer/src/main/java/com/willmolloy/media/tvshows/TvShowRenamer.java)
+2. Run via [Gradle task](media-file-renamer/build.gradle):
+   ```bash
+   ./gradlew build :media-file-renamer:run -PshowDir="" -PdryRun=true|false && pause || pause
+   ```
     - Point `showDir` at root directory of your TV show
     - Set `dryRun`, recommend `true` at first and check the output
 
