@@ -1,5 +1,6 @@
 package com.willmolloy.media.tvshows;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Stopwatch;
@@ -7,6 +8,9 @@ import com.google.common.base.Strings;
 import com.willmolloy.media.tvshows.enricher.EnrichedTvShow;
 import com.willmolloy.media.tvshows.enricher.TvShowEnricher;
 import com.willmolloy.media.tvshows.parser.TvShowParser;
+import com.willmolloy.media.tvshows.repository.themoviedb.TheMovieDatabase;
+import com.willmolloy.media.util.HttpHelper;
+import com.willmolloy.media.util.JsonHelper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,9 +38,6 @@ class TvShowRenamer {
   }
 
   void run(Path showDir, boolean dryRun) throws IOException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    log.info("run(showDir={}, dryRun={}) started", showDir, dryRun);
-
     EnrichedTvShow tvShow = tvShowEnricher.enrich(tvShowParser.parse(showDir));
 
     for (EnrichedTvShow.EnrichedSeason season : tvShow.seasons()) {
@@ -67,8 +68,6 @@ class TvShowRenamer {
       }
     }
 
-    log.info("run finished - elapsed: {}", stopwatch.elapsed());
-
     if (dryRun) {
       log.info("Dry run. Please check the above output");
     }
@@ -78,16 +77,35 @@ class TvShowRenamer {
     return Strings.padStart(String.valueOf(i), 2, '0');
   }
 
-  public static void main(String[] args) {
+  public static void main(String... args) {
+    Stopwatch stopwatch = Stopwatch.createStarted();
     try {
-      TvShowRenamer app = TvShowRenamerFactory.construct();
+      checkArgument(args.length == 2, "Expected 2 args");
+      // Process 1 show at a time rather than all shows. Some shows require manual intervention
+      // (e.g. joint episodes) which can't really be automated. So reprocessing all shows would mess
+      // up the data.
+      Path showDir = Path.of(args[0]);
+      boolean dryRun = Boolean.parseBoolean(args[1]);
 
-      Path showDir = Path.of("");
-      boolean dryRun = true;
+      TvShowRenamer app = construct();
 
+      log.info("Running - showDir={}, dryRun={}", showDir, dryRun);
       app.run(showDir, dryRun);
     } catch (Throwable e) {
       log.fatal("Fatal error", e);
+    } finally {
+      log.info("Elapsed: {}", stopwatch.elapsed());
     }
+  }
+
+  public static TvShowRenamer construct() {
+    String movieDbApiKey = System.getenv("THE_MOVIE_DB_API_KEY");
+    checkNotNull(movieDbApiKey, "THE_MOVIE_DB_API_KEY not set");
+    TheMovieDatabase theMovieDatabase =
+        new TheMovieDatabase(movieDbApiKey, new HttpHelper(new JsonHelper()));
+
+    TvShowParser tvShowParser = new TvShowParser();
+    TvShowEnricher tvShowEnricher = new TvShowEnricher(theMovieDatabase);
+    return new TvShowRenamer(tvShowParser, tvShowEnricher);
   }
 }
